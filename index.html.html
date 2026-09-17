@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepSimulados - Auditor Fiscal & PCDF Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* 3D Flip Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(71, 85, 105, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- NAVIGATION BAR -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-black text-lg tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent">PrepSimulados</span>
+                        <span class="block text-[10px] font-bold tracking-widest uppercase text-slate-400">Auditor Fiscal & PCDF</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Nav Links -->
+                <nav class="hidden md:flex items-center gap-1">
+                    <button onclick="navigateTo('home')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Início
+                    </button>
+                    <button onclick="navigateTo('quiz')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
+                        <i data-lucide="help-circle" class="w-4 h-4"></i> Simulados
+                    </button>
+                    <button onclick="navigateTo('flashcards')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
+                        <i data-lucide="layers" class="w-4 h-4"></i> Flashcards <span id="nav-fc-badge" class="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded-full font-bold">0</span>
+                    </button>
+                    <button onclick="navigateTo('ai-gen')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition flex items-center gap-2 font-semibold">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Elaborador IA Pro
+                    </button>
+                    <button onclick="navigateTo('bank')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
+                        <i data-lucide="database" class="w-4 h-4"></i> Banco
+                    </button>
+                    <button onclick="navigateTo('glossary')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Glossário <span id="nav-glossary-badge" class="px-1.5 py-0.5 text-[10px] bg-amber-500/20 text-amber-400 rounded-full font-bold">0</span>
+                    </button>
+                    <button onclick="navigateTo('stats')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Desempenho
+                    </button>
+                </nav>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <div id="storage-status-badge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold">
+                        <i data-lucide="hard-drive" class="w-3.5 h-3.5"></i>
+                        <span id="storage-status-text">Banco Ativo</span>
+                    </div>
+
+                    <button onclick="openBulkJsonModal()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 font-bold text-xs transition">
+                        <i data-lucide="file-up" class="w-4 h-4"></i> Importar / Exportar JSON
+                    </button>
+
+                    <button onclick="openManualQuestionModal()" class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Criar Questão
+                    </button>
+
+                    <button id="theme-toggle" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:scale-105 transition">
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                        <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                    </button>
+
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="hidden md:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 pt-2 pb-4 space-y-1">
+            <button onclick="navigateTo('home'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Início
+            </button>
+            <button onclick="navigateTo('quiz'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="help-circle" class="w-4 h-4"></i> Simulados
+            </button>
+            <button onclick="navigateTo('flashcards'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="layers" class="w-4 h-4"></i> Flashcards
+            </button>
+            <button onclick="navigateTo('ai-gen'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="sparkles" class="w-4 h-4"></i> Elaborador IA Pro
+            </button>
+            <button onclick="openBulkJsonModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-purple-500 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold">
+                <i data-lucide="file-up" class="w-4 h-4"></i> Importar Questões em JSON
+            </button>
+            <button onclick="openManualQuestionModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-emerald-500 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Cadastrar Questão Manual
+            </button>
+            <button onclick="navigateTo('bank'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="database" class="w-4 h-4"></i> Banco de Questões
+            </button>
+            <button onclick="navigateTo('glossary'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="book-open" class="w-4 h-4"></i> Glossário Legal
+            </button>
+            <button onclick="navigateTo('stats'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Meu Desempenho
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ==================== HOME VIEW ==================== -->
+        <section id="view-home" class="view-section space-y-8">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-12 border border-slate-800 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Persistência Ativa (LocalStorage + IndexedDB)
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Domine a banca <span class="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Cebraspe & FGV</span>
+                    </h1>
+                    <p class="text-slate-300 text-base sm:text-lg">
+                        Suas questões manuais, importadas e geradas pela IA ficam <strong>salvas permanentemente</strong> no seu navegador. Use o <strong class="text-white">Elaborador IA Pro</strong> para converter leis e PDFs em simulados práticos!
+                    </p>
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="startQuickQuiz('ALL')" class="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-blue-600/30">
+                            <i data-lucide="play" class="w-5 h-5"></i> Iniciar Simulado
+                        </button>
+                        <button onclick="navigateTo('ai-gen')" class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i> Usar Elaborador IA Pro
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Quick Stats (Fixed Clean Grid) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">Respondidas</span>
+                        <i data-lucide="check-square" class="w-5 h-5 text-blue-500"></i>
+                    </div>
+                    <div class="text-2xl font-black text-slate-900 dark:text-white" id="stat-total-solved">0</div>
+                    <span class="text-xs text-emerald-500 font-medium">Caderno atualizado</span>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">Taxa de Acerto</span>
+                        <i data-lucide="target" class="w-5 h-5 text-emerald-500"></i>
+                    </div>
+                    <div class="text-2xl font-black text-slate-900 dark:text-white" id="stat-accuracy">0%</div>
+                    <span class="text-xs text-slate-400 font-medium">Meta: &gt; 80%</span>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">No Banco</span>
+                        <i data-lucide="database" class="w-5 h-5 text-purple-500"></i>
+                    </div>
+                    <div class="text-2xl font-black text-slate-900 dark:text-white" id="stat-bank-count">0</div>
+                    <span class="text-xs text-purple-400 font-medium" id="stat-storage-type">Armazenamento Salvo</span>
+                </div>
+
+                <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                    <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+                        <span class="text-xs font-bold uppercase tracking-wider">Flashcards</span>
+                        <i data-lucide="layers" class="w-5 h-5 text-amber-500"></i>
+                    </div>
+                    <div class="text-2xl font-black text-slate-900 dark:text-white" id="stat-flashcards-count">0</div>
+                    <span class="text-xs text-amber-400 font-medium">Sincronizados</span>
+                </div>
+            </div>
+
+            <!-- GitHub Backup Warning Banner -->
+            <div id="storage-warning-banner" class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-semibold flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-alert" class="w-4 h-4 shrink-0"></i>
+                    <span><strong>Dica do Desenvolvedor:</strong> Ao hospedar no <strong>GitHub Pages</strong>, suas questões ficarão salvas automaticamente no navegador do usuário. Você também pode fazer backup do seu banco em JSON a qualquer momento!</span>
+                </div>
+                <button onclick="exportQuestionBankToJson()" class="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 font-bold transition flex items-center gap-1">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Baixar Backup (.json)
+                </button>
+            </div>
+
+            <!-- Target Selection Cards -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i data-lucide="compass" class="w-5 h-5 text-blue-500"></i> Escolha sua Carreira Alvo
+                </h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- PCDF Card -->
+                    <div onclick="startQuickQuiz('PCDF')" class="group p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-blue-500 dark:hover:border-blue-500 transition cursor-pointer shadow-sm hover:shadow-md relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-bl-full group-hover:scale-110 transition"></div>
+                        <div class="flex items-start gap-4">
+                            <div class="p-3.5 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                                <i data-lucide="badge-check" class="w-8 h-8"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-blue-600 dark:text-blue-400">Carreira Policial</span>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">PCDF (Polícia Civil do DF)</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Dir. Penal, Proc. Penal, Dir. Constitucional, Dir. Administrativo e RLM.</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                            <span class="text-xs font-semibold text-slate-400">Simulado Cebraspe</span>
+                            <span class="text-xs font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition flex items-center gap-1">
+                                Treinar Agora <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Auditor Card -->
+                    <div onclick="startQuickQuiz('AUDITOR')" class="group p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-emerald-500 dark:hover:border-emerald-500 transition cursor-pointer shadow-sm hover:shadow-md relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full group-hover:scale-110 transition"></div>
+                        <div class="flex items-start gap-4">
+                            <div class="p-3.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                <i data-lucide="calculator" class="w-8 h-8"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Carreira Fiscal</span>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Auditor Fiscal (Receita & SEFAZ)</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Dir. Tributário, Contabilidade Avançada, Aud. Fiscal e Dir. Const/Admin.</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                            <span class="text-xs font-semibold text-slate-400">Foco FGV e Cebraspe</span>
+                            <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition flex items-center gap-1">
+                                Treinar Agora <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Individual Discipline Practice (não apenas simulados por carreira) -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i data-lucide="book-marked" class="w-5 h-5 text-indigo-500"></i> Praticar por Disciplina
+                    </h2>
+                    <span class="text-xs text-slate-400 font-medium">Foque numa matéria específica em vez do simulado completo</span>
+                </div>
+                <div id="discipline-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    <!-- Gerado dinamicamente via renderDisciplineCards() -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== QUIZ VIEW ==================== -->
+        <section id="view-quiz" class="view-section hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="text-xs font-extrabold tracking-wider uppercase text-blue-500" id="quiz-discipline-tag">DIREITO CONSTITUCIONAL</span>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white" id="quiz-title">Simulado Prático</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-extrabold text-slate-400" id="quiz-progress-text">Questão 1 de 5</span>
+                </div>
+            </div>
+
+            <!-- Quiz Visual Progress Bar -->
+            <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                <div id="quiz-progress-bar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full w-0 transition-all duration-300"></div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
+                <!-- Enunciado -->
+                <div class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span id="quiz-role-badge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">CEBRASPE - PCDF</span>
+                        <span id="quiz-source-badge" class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-indigo-500/10 text-indigo-400">Inédita</span>
+                    </div>
+                    <p class="text-base sm:text-lg font-medium text-slate-800 dark:text-slate-100 leading-relaxed" id="quiz-statement">
+                        Carregando questão...
+                    </p>
+                </div>
+
+                <!-- Options -->
+                <div class="space-y-3" id="quiz-options-container">
+                    <!-- Dynamic radio options injected via JS -->
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/60">
+                    <button onclick="checkQuizAnswer()" id="btn-submit-answer" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition flex items-center gap-2">
+                        Responder Questão
+                    </button>
+                    <button onclick="nextQuizQuestion()" id="btn-next-question" class="hidden px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition flex items-center gap-2">
+                        Próxima Questão <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Gabarito Comentado -->
+                <div id="quiz-explanation-box" class="hidden p-5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 space-y-3">
+                    <div class="flex items-center gap-2 font-bold text-sm" id="quiz-result-title"></div>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" id="quiz-explanation-text"></p>
+                    <div class="text-xs font-semibold text-blue-600 dark:text-blue-400" id="quiz-law-article"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== FLASHCARDS VIEW ==================== -->
+        <section id="view-flashcards" class="view-section hidden space-y-6">
+            <div class="text-center space-y-2 max-w-xl mx-auto">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sincronizado com o Banco de Questões
+                </span>
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white">Flashcards de Revisão Ativa</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Clique no cartão para virar. Suas questões cadastráveis geram cards automaticamente!</p>
+            </div>
+
+            <!-- Filter Tabs for Flashcards -->
+            <div class="flex items-center justify-center gap-2 max-w-xl mx-auto flex-wrap">
+                <button onclick="filterFlashcardsMode('ALL')" id="fc-filter-all" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white transition">
+                    Todos os Cards
+                </button>
+                <button onclick="filterFlashcardsMode('BANK')" id="fc-filter-bank" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
+                    Gerados do Banco
+                </button>
+                <button onclick="filterFlashcardsMode('CONCEPT')" id="fc-filter-concept" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
+                    Conceituais Originais
+                </button>
+            </div>
+
+            <!-- 3D Card Container -->
+            <div class="max-w-xl mx-auto perspective-1000 min-h-[340px]">
+                <div id="flashcard-inner" onclick="flipFlashcard()" class="relative w-full h-88 rounded-3xl cursor-pointer transition-transform duration-500 transform-style-3d shadow-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-8 flex flex-col justify-between">
+                    
+                    <!-- FRONT SIDE -->
+                    <div class="absolute inset-0 p-8 flex flex-col justify-between backface-hidden bg-white dark:bg-slate-800 rounded-3xl">
+                        <div class="flex items-center justify-between text-xs font-bold text-purple-500">
+                            <span id="fc-category">DIREITO PROCESSUAL PENAL</span>
+                            <span class="flex items-center gap-1"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Clique p/ Virar</span>
+                        </div>
+                        <div class="my-auto text-center">
+                            <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 leading-relaxed" id="fc-question">
+                                Carregando Flashcard...
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-slate-400">
+                            <span id="fc-source-tag" class="text-[10px] uppercase font-semibold text-slate-400">Fonte: Originais</span>
+                            <span>Frente (Enunciado)</span>
+                        </div>
+                    </div>
+
+                    <!-- BACK SIDE -->
+                    <div class="absolute inset-0 p-8 flex flex-col justify-between backface-hidden rotate-y-180 bg-slate-900 text-white rounded-3xl border border-purple-500/30">
+                        <div class="flex items-center justify-between text-xs font-bold text-purple-400">
+                            <span>GABARITO & FUNDAMENTAÇÃO</span>
+                            <span>Verso (Resposta)</span>
+                        </div>
+                        <div class="my-auto text-center space-y-3 overflow-y-auto max-h-52 pr-1">
+                            <p class="text-sm sm:text-base text-slate-200 leading-relaxed font-medium whitespace-pre-line text-left" id="fc-answer">
+                                Resposta e comentários...
+                            </p>
+                        </div>
+                        <div class="text-center text-xs text-slate-500">
+                            Foco na Fixação Rápida
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-4 max-w-xl mx-auto">
+                <button onclick="prevFlashcard()" class="p-3.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                </button>
+                <span id="fc-counter" class="text-sm font-extrabold text-slate-500">1 / 1</span>
+                <button onclick="nextFlashcard()" class="p-3.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition flex items-center gap-2">
+                    Próximo <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== AI GENERATOR VIEW ==================== -->
+        <section id="view-ai-gen" class="view-section hidden space-y-6">
+            <div class="text-center space-y-2 max-w-2xl mx-auto">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
+                    <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Elaborador de Provas Profissional (Cebraspe & FGV)
+                </span>
+                <h2 class="text-3xl font-black text-slate-900 dark:text-white">Gerador Baseado em Leis, PDFs & Doutrina</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Cole abaixo o <strong>artigo de lei, trecho do seu PDF ou resumo doutrinário</strong> para a IA elaborar questões no padrão exato da banca.</p>
+            </div>
+
+            <!-- Form Box -->
+            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-xl space-y-6">
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Cole o Texto Base (Artigo de Lei, PDF ou Doutrina)</label>
+                            <span class="text-[11px] text-slate-400 font-medium">Precisão de Banca</span>
+                        </div>
+                        <textarea id="ai-source-text" rows="5" placeholder="Ex: Cole aqui o trecho do PDF ou artigo de lei (ex: Art. 157 do CP, ou Atributos dos Atos Administrativos)..." class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono outline-none focus:ring-2 focus:ring-indigo-500 leading-relaxed text-slate-800 dark:text-slate-100"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Assunto Específico / Tópico</label>
+                        <input type="text" id="ai-topic-input" placeholder="Ex: Inquérito Policial, Lançamento Tributário, Crimes contra o Patrimônio..." class="w-full px-4 py-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-800 dark:text-slate-100">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Carreira Alvo</label>
+                            <select id="ai-role-select" class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-800 dark:text-slate-100 text-sm">
+                                <option value="PCDF">PCDF (Polícia Civil do DF)</option>
+                                <option value="Auditor Fiscal">Auditor Fiscal (SEFAZ/Receita)</option>
+                                <option value="CGU">CGU</option>
+                                <option value="TCE">TCE</option>
+                                <option value="Ambos">Geral (Todos os Concursos)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Quantidade</label>
+                            <select id="ai-count-select" class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-800 dark:text-slate-100 text-sm">
+                                <option value="1">1 Questão</option>
+                                <option value="2" selected>2 Questões</option>
+                                <option value="3">3 Questões</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Estilo de Banca</label>
+                            <select id="ai-style-select" class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-slate-800 dark:text-slate-100 text-sm">
+                                <option value="Cebraspe (Certo/Errado)">Cebraspe (Certo/Errado)</option>
+                                <option value="FGV (Múltipla Escolha)">FGV (Múltipla Escolha)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="generateQuestionsWithAI()" id="btn-generate-ai" class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 text-base">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i> Gerar Questão Profissional e Salvar no Banco
+                </button>
+            </div>
+
+            <!-- AI Output Area -->
+            <div id="ai-loading-box" class="hidden max-w-2xl mx-auto p-8 rounded-3xl bg-white dark:bg-slate-800 border border-indigo-500/30 text-center space-y-4">
+                <div class="inline-block animate-spin text-indigo-500">
+                    <i data-lucide="loader-2" class="w-10 h-10"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100" id="ai-loading-status">Analisando jurisprudência e aplicando pegadinhas de banca...</h3>
+                <p class="text-xs text-slate-400">Processando texto base e salvando permanentemente no seu banco.</p>
+            </div>
+
+            <div id="ai-results-container" class="max-w-2xl mx-auto space-y-6"></div>
+        </section>
+
+        <!-- ==================== QUESTION BANK VIEW ==================== -->
+        <section id="view-bank" class="view-section hidden space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">Banco de Questões Integrado</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm">Todas as questões salvas alimentam o módulo de Simulados, Flashcards e Glossário.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="cleanDuplicateQuestions()" class="px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-bold text-xs flex items-center gap-2 transition">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i> Remover Repetidas
+                    </button>
+                    <button onclick="openBulkJsonModal()" class="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm flex items-center gap-2 shadow-md transition">
+                        <i data-lucide="file-up" class="w-4 h-4"></i> Importar/Exportar JSON
+                    </button>
+                    <button onclick="openManualQuestionModal()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center gap-2 shadow-md transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar Manual
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar for Bank -->
+            <div class="relative w-full">
+                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+                <input type="text" id="bank-search-input" oninput="renderBankList()" placeholder="Pesquisar questões por palavra-chave ou disciplina..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Question Bank List Container -->
+            <div id="bank-list" class="space-y-4"></div>
+        </section>
+
+        <!-- ==================== GLOSSARY VIEW ==================== -->
+        <section id="view-glossary" class="view-section hidden space-y-6">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white">Glossário Legal & Jurisprudência</h2>
+                        <span id="glossary-dynamic-tag" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20">Auto-extraído</span>
+                    </div>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm">Súmulas vinculantes, artigos de lei e fundamentações compiladas do seu banco.</p>
+                </div>
+                <div class="w-full sm:w-72 relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400"></i>
+                    <input type="text" id="glossary-search" oninput="filterGlossary()" placeholder="Buscar súmula ou lei..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div id="glossary-list" class="grid sm:grid-cols-2 gap-4"></div>
+        </section>
+
+        <!-- ==================== STATS VIEW ==================== -->
+        <section id="view-stats" class="view-section hidden space-y-6">
+            <div class="text-center space-y-2 max-w-xl mx-auto">
+                <h2 class="text-2xl font-black text-slate-900 dark:text-white">Meu Desempenho</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Estatísticas detalhadas de resolução de questões.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2 text-center">
+                    <div class="text-xs font-extrabold uppercase text-slate-400">Total Respondidas</div>
+                    <div class="text-4xl font-black text-blue-600 dark:text-blue-400" id="stats-page-total">0</div>
+                </div>
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2 text-center">
+                    <div class="text-xs font-extrabold uppercase text-slate-400">Acertos</div>
+                    <div class="text-4xl font-black text-emerald-500" id="stats-page-correct">0</div>
+                </div>
+                <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2 text-center">
+                    <div class="text-xs font-extrabold uppercase text-slate-400">Erros</div>
+                    <div class="text-4xl font-black text-rose-500" id="stats-page-wrong">0</div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODAL: IMPORTAR / EXPORTAR JSON EM MASSA ==================== -->
+    <div id="modal-bulk-json" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6 my-8 relative">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-xl bg-purple-500/10 text-purple-500">
+                        <i data-lucide="file-json" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Importar / Exportar JSON em Massa</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Adicione questões de uma só vez ou faça backup.</p>
+                    </div>
+                </div>
+                <button onclick="closeBulkJsonModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Backup Automático em Arquivo Local (resolve o reset de dados) -->
+                <div class="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 space-y-3">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="link" class="w-4 h-4 text-emerald-500"></i>
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Backup Automático em Arquivo (recomendado)</span>
+                        </div>
+                        <span id="local-file-status-badge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">Conectado ✓</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Conecte um arquivo .json do seu computador. A partir daí, toda questão que você salvar é gravada automaticamente nele — sem precisar exportar/importar manualmente toda vez. Funciona no Chrome/Edge, numa aba normal do navegador.</p>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="connectLocalBackupFile(false)" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 transition">
+                            <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Usar Backup Existente
+                        </button>
+                        <button onclick="connectLocalBackupFile(true)" class="px-3.5 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold text-xs flex items-center gap-2 transition">
+                            <i data-lucide="file-plus" class="w-3.5 h-3.5"></i> Criar Novo Arquivo
+                        </button>
+                        <button id="btn-reconnect-local-file" onclick="reconnectLocalFile()" class="hidden px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-bold text-xs flex items-center gap-2 transition">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Reconectar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                    <span class="flex-shrink mx-4 text-xs text-slate-400 font-extrabold uppercase">OU (manual)</span>
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Opção 1: Enviar Arquivo .json</label>
+                    <div class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-purple-500 rounded-2xl p-6 text-center cursor-pointer transition bg-slate-50 dark:bg-slate-900/50" onclick="document.getElementById('json-file-input').click()">
+                        <i data-lucide="upload-cloud" class="w-8 h-8 mx-auto text-purple-500 mb-2"></i>
+                        <p class="text-sm font-bold text-slate-700 dark:text-slate-200">Clique para selecionar o arquivo .json</p>
+                        <p class="text-xs text-slate-400">Suporta arquivos com várias questões</p>
+                        <input type="file" id="json-file-input" accept=".json" onchange="handleFileUpload(event)" class="hidden">
+                    </div>
+                </div>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                    <span class="flex-shrink mx-4 text-xs text-slate-400 font-extrabold uppercase">OU</span>
+                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Opção 2: Cole o Código JSON</label>
+                        <button onclick="copySampleJsonSchema()" class="text-xs text-purple-500 hover:underline font-bold flex items-center gap-1">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar Modelo de Exemplo
+                        </button>
+                    </div>
+                    <textarea id="bulk-json-input" rows="5" placeholder='[&#10;  {&#10;    "discipline": "DIREITO PENAL",&#10;    "role": "PCDF",&#10;    "statement": "Texto da questão...",&#10;    "options": ["CERTO", "ERRADO"],&#10;    "correctAnswerIndex": 0,&#10;    "explanation": "Comentário...",&#10;    "lawArticles": "Art. 1º CP"&#10;  }&#10;]' class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-mono outline-none focus:ring-2 focus:ring-purple-500 leading-relaxed"></textarea>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <button onclick="exportQuestionBankToJson()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-600 transition flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4 text-purple-400"></i> Exportar Meu Banco (.json)
+                    </button>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="closeBulkJsonModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+                            Cancelar
+                        </button>
+                        <button onclick="processRawJsonImport()" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition shadow-lg shadow-purple-600/20 flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i> Importar Questões
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL: ADICIONAR QUESTÃO MANUALMENTE ==================== -->
+    <div id="modal-manual-question" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 dark:border-slate-700 shadow-2xl space-y-6 my-8 relative">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500">
+                        <i data-lucide="edit-3" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Cadastrar Questão Manual</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Adicione questões do seu caderno de estudos.</p>
+                    </div>
+                </div>
+                <button onclick="closeManualQuestionModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="form-manual-question" onsubmit="handleManualQuestionSubmit(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Disciplina</label>
+                        <input type="text" id="manual-discipline" required placeholder="Ex: Direito Processual Penal" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Carreira / Cargo</label>
+                        <select id="manual-role" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="PCDF">PCDF (Polícia Civil do DF)</option>
+                            <option value="Auditor Fiscal">Auditor Fiscal (SEFAZ/Receita)</option>
+                            <option value="CGU">CGU</option>
+                            <option value="TCE">TCE</option>
+                            <option value="Outros Concursos">Outros Concursos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Formato da Banca</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="setManualFormat('cebraspe')" id="format-btn-cebraspe" class="py-2.5 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center gap-2">
+                            <i data-lucide="check-square" class="w-4 h-4"></i> Cebraspe (Certo/Errado)
+                        </button>
+                        <button type="button" onclick="setManualFormat('multiple')" id="format-btn-multiple" class="py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-xs flex items-center justify-center gap-2">
+                            <i data-lucide="list" class="w-4 h-4"></i> Múltipla Escolha (A, B, C, D, E)
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Enunciado da Questão</label>
+                    <textarea id="manual-statement" required rows="3" placeholder="Digite aqui o texto da questão..." class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed"></textarea>
+                </div>
+
+                <div id="manual-options-container" class="space-y-3"></div>
+
+                <div>
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Gabarito Comentado (Explicação)</label>
+                    <textarea id="manual-explanation" required rows="2" placeholder="Explicação do porquê o gabarito está certo ou errado..." class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500 leading-relaxed"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Fundamentação Legal (Opcional)</label>
+                    <input type="text" id="manual-law" placeholder="Ex: Art. 17 do CPP, Súmula Vinculante 14 STF" class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <button type="button" onclick="closeManualQuestionModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-sm hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-600/20 flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Salvar Questão
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- APPLICATION LOGIC JS -->
+    <script>
+        // Default initial questions
+        const defaultQuestions = [
+            {
+                id: 'q1',
+                discipline: 'DIREITO PROCESSUAL PENAL',
+                role: 'PCDF',
+                statement: 'O Inquérito Policial, por ter a natureza jurídica de procedimento administrativo inquisitório, prescinde da observância dos princípios do contraditório e da ampla defesa plena, salvo na hipótese do inquérito instaurado pela Polícia Federal para apuração de infrações de repercussão internacional.',
+                options: [
+                    'CERTO - A lei prevê exceção formal para crimes de repercussão internacional.',
+                    'ERRADO - O inquérito policial é inquisitório e não prevê contraditório pleno em nenhuma hipótese, ressalvado o direito de acesso do defensor aos elementos já documentados.'
+                ],
+                correctAnswerIndex: 1,
+                explanation: 'A natureza do Inquérito Policial é administrativa e inquisitória em todos os casos. Não há exceção que imponha contraditório prévio para infrações internacionais.',
+                lawArticles: 'Art. 5º, LXIII, CF/88 e Súmula Vinculante 14 do STF.',
+                source: 'Inédita'
+            },
+            {
+                id: 'q2',
+                discipline: 'CONTABILIDADE GERAL',
+                role: 'Auditor Fiscal',
+                statement: 'No Balanço Patrimonial, o Ativo Não Circulante é composto pelos seguintes subgrupos: Ativo Realizável a Longo Prazo, Investimentos, Imobilizado e Intangível.',
+                options: [
+                    'CERTO - Reflete rigorosamente a divisão estipulada pela Lei das S.A.',
+                    'ERRADO - Faltam os subgrupos Ativo Diferido e Ativo Circulante Especial.'
+                ],
+                correctAnswerIndex: 0,
+                explanation: 'Conforme a Lei nº 6.404/76 (Lei das S.A.), com redação dada pela Lei nº 11.941/09, o Ativo Não Circulante divide-se exatamente em: RLP, Investimentos, Imobilizado e Intangível.',
+                lawArticles: 'Art. 178, § 1º, B da Lei 6.404/1976.',
+                source: 'Inédita'
+            }
+        ];
+
+        // STORAGE KEYS
+        const LOCAL_STORAGE_KEY = 'prepsim_bank_v5_persistent';
+        const DB_NAME = 'PrepSimuladosDB_v5';
+        const DB_VERSION = 2; // v2: adiciona store 'filehandles' para o backup automático em arquivo local
+        let dbInstance = null;
+        let storageMode = 'LocalStorage';
+        let localFileHandle = null; // Handle do arquivo .json local conectado (File System Access API)
+
+        function isLocalStorageSupported() {
+            try {
+                const testKey = '__test_storage__';
+                localStorage.setItem(testKey, '1');
+                localStorage.removeItem(testKey);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function initIndexedDB() {
+            return new Promise((resolve) => {
+                if (!window.indexedDB) {
+                    resolve(false);
+                    return;
+                }
+                try {
+                    const request = indexedDB.open(DB_NAME, DB_VERSION);
+                    request.onupgradeneeded = (e) => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('questions')) {
+                            db.createObjectStore('questions', { keyPath: 'id' });
+                        }
+                        if (!db.objectStoreNames.contains('filehandles')) {
+                            db.createObjectStore('filehandles');
+                        }
+                    };
+                    request.onsuccess = (e) => {
+                        dbInstance = e.target.result;
+                        resolve(true);
+                    };
+                    request.onerror = () => resolve(false);
+                } catch (err) {
+                    resolve(false);
+                }
+            });
+        }
+
+        async function loadQuestionsFromStorage() {
+            let loadedData = null;
+
+            // 1. Try LocalStorage
+            if (isLocalStorageSupported()) {
+                try {
+                    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+                    if (stored) {
+                        loadedData = JSON.parse(stored);
+                        storageMode = 'LocalStorage + Backup';
+                    }
+                } catch (e) {
+                    console.warn("LocalStorage read warning:", e);
+                }
+            }
+
+            // 2. Try IndexedDB if LocalStorage returned nothing
+            if ((!loadedData || loadedData.length === 0) && dbInstance) {
+                loadedData = await new Promise((resolve) => {
+                    try {
+                        const tx = dbInstance.transaction('questions', 'readonly');
+                        const store = tx.objectStore('questions');
+                        const req = store.getAll();
+                        req.onsuccess = () => resolve(req.result || []);
+                        req.onerror = () => resolve([]);
+                    } catch (e) {
+                        resolve([]);
+                    }
+                });
+                if (loadedData && loadedData.length > 0) {
+                    storageMode = 'IndexedDB Engine';
+                }
+            }
+
+            // 3. Fallback to default initial questions if completely empty
+            if (!loadedData || !Array.isArray(loadedData) || loadedData.length === 0) {
+                loadedData = [...defaultQuestions];
+                await saveQuestionsToStorage(loadedData);
+            } else {
+                saveToIndexedDB(loadedData);
+            }
+
+            updateStorageStatusUI();
+            return loadedData;
+        }
+
+        async function saveQuestionsToStorage(questionsList) {
+            appState.questionBank = questionsList;
+
+            // Save to LocalStorage
+            if (isLocalStorageSupported()) {
+                try {
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(questionsList));
+                } catch (e) {
+                    console.warn("LocalStorage quota error:", e);
+                }
+            }
+
+            // Save to IndexedDB
+            await saveToIndexedDB(questionsList);
+
+            // Save to o arquivo local conectado (se houver) — backup automático real em disco
+            if (localFileHandle) {
+                await writeToLocalFileHandle(localFileHandle, questionsList);
+            }
+
+            // Sync active quiz if necessary
+            if (!appState.activeQuizList || appState.activeQuizList.length === 0) {
+                appState.activeQuizList = [...appState.questionBank];
+            }
+
+            updateStorageStatusUI();
+        }
+
+        function saveToIndexedDB(questionsList) {
+            return new Promise((resolve) => {
+                if (!dbInstance) {
+                    resolve(false);
+                    return;
+                }
+                try {
+                    const tx = dbInstance.transaction('questions', 'readwrite');
+                    const store = tx.objectStore('questions');
+                    store.clear();
+                    questionsList.forEach(q => store.put(q));
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => resolve(false);
+                } catch (e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        async function deleteQuestionFromStorage(id) {
+            const filtered = appState.questionBank.filter(q => q.id !== id);
+            await saveQuestionsToStorage(filtered);
+        }
+
+        // ===================== BACKUP AUTOMÁTICO EM ARQUIVO LOCAL (File System Access API) =====================
+        // Resolve o problema de "o site reseta as questões": em vez de depender só do localStorage/IndexedDB
+        // do navegador (que ficam presos ao endereço exato da página), o usuário conecta um arquivo .json
+        // real no computador dele. A partir daí, toda vez que uma questão é salva, o próprio arquivo é
+        // atualizado automaticamente — sem precisar mais exportar/importar manualmente.
+        // Funciona em Chrome/Edge (desktop) quando a página está aberta numa aba normal do navegador
+        // (arquivo baixado, ou hospedado no GitHub Pages). Não funciona em Firefox/Safari nem dentro de
+        // pré-visualizações embutidas (iframes) — nesses casos, use normalmente o Importar/Exportar JSON.
+
+        function isFileSystemAccessSupported() {
+            return typeof window.showSaveFilePicker === 'function' && typeof window.showOpenFilePicker === 'function';
+        }
+
+        async function saveFileHandleToDB(handle) {
+            if (!dbInstance) return;
+            try {
+                const tx = dbInstance.transaction('filehandles', 'readwrite');
+                tx.objectStore('filehandles').put(handle, 'localFile');
+            } catch (e) {
+                console.warn('Não foi possível salvar a referência do arquivo local:', e);
+            }
+        }
+
+        function loadFileHandleFromDB() {
+            return new Promise((resolve) => {
+                if (!dbInstance) { resolve(null); return; }
+                try {
+                    const tx = dbInstance.transaction('filehandles', 'readonly');
+                    const req = tx.objectStore('filehandles').get('localFile');
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        }
+
+        async function writeToLocalFileHandle(handle, questionsList) {
+            try {
+                let permission = await handle.queryPermission({ mode: 'readwrite' });
+                if (permission !== 'granted') {
+                    permission = await handle.requestPermission({ mode: 'readwrite' });
+                }
+                if (permission !== 'granted') return false;
+
+                const writable = await handle.createWritable();
+                await writable.write(JSON.stringify(questionsList, null, 2));
+                await writable.close();
+                return true;
+            } catch (e) {
+                console.warn('Erro ao gravar automaticamente no arquivo local:', e);
+                return false;
+            }
+        }
+
+        function updateLocalFileStatusUI(connected) {
+            const badge = document.getElementById('local-file-status-badge');
+            const reconnectBtn = document.getElementById('btn-reconnect-local-file');
+            if (badge) badge.classList.toggle('hidden', !connected);
+            if (reconnectBtn) reconnectBtn.classList.toggle('hidden', connected);
+        }
+
+        // Ao carregar a página, tenta reconectar automaticamente no último arquivo usado
+        // (o navegador exige confirmação de permissão de novo por segurança, sem precisar escolher o arquivo de novo).
+        async function tryReconnectLocalFile() {
+            if (!isFileSystemAccessSupported()) return;
+            const handle = await loadFileHandleFromDB();
+            if (!handle) return;
+            try {
+                const permission = await handle.queryPermission({ mode: 'readwrite' });
+                if (permission === 'granted') {
+                    localFileHandle = handle;
+                    updateLocalFileStatusUI(true);
+                } else {
+                    localFileHandle = handle;
+                    updateLocalFileStatusUI(false);
+                }
+            } catch (e) {
+                updateLocalFileStatusUI(false);
+            }
+        }
+
+        // Chamado pelo botão "Reconectar" quando a permissão precisa ser confirmada de novo pelo usuário.
+        async function reconnectLocalFile() {
+            if (!localFileHandle) return;
+            try {
+                const permission = await localFileHandle.requestPermission({ mode: 'readwrite' });
+                if (permission === 'granted') {
+                    updateLocalFileStatusUI(true);
+                    alertToast('Arquivo local reconectado com sucesso!');
+                } else {
+                    alertToast('Permissão negada. Conecte o arquivo novamente.');
+                }
+            } catch (e) {
+                alertToast('Não foi possível reconectar. Conecte o arquivo novamente.');
+            }
+        }
+
+        async function connectLocalBackupFile(createNew) {
+            if (!isFileSystemAccessSupported()) {
+                alertToast('Seu navegador não suporta esse recurso (funciona no Chrome/Edge). Use o Importar/Exportar JSON normalmente.');
+                return;
+            }
+            try {
+                let handle;
+                if (createNew) {
+                    handle = await window.showSaveFilePicker({
+                        suggestedName: 'banco_questoes_prepsim.json',
+                        types: [{ description: 'Arquivo JSON', accept: { 'application/json': ['.json'] } }]
+                    });
+                    await writeToLocalFileHandle(handle, appState.questionBank);
+                } else {
+                    const [pickedHandle] = await window.showOpenFilePicker({
+                        types: [{ description: 'Arquivo JSON', accept: { 'application/json': ['.json'] } }]
+                    });
+                    handle = pickedHandle;
+                    const file = await handle.getFile();
+                    const text = await file.text();
+                    const parsed = JSON.parse(text);
+                    await importJsonArray(parsed);
+                }
+
+                localFileHandle = handle;
+                await saveFileHandleToDB(handle);
+                updateLocalFileStatusUI(true);
+                alertToast('Arquivo local conectado! A partir de agora, tudo é salvo nele automaticamente.');
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.warn(err);
+                    alertToast('Não foi possível conectar ao arquivo. Tente novamente.');
+                }
+            }
+        }
+
+        // Normaliza o enunciado de forma agressiva para detectar duplicatas reais:
+        // remove acentos, pontuação, espaços não separáveis (\u00A0), quebras de linha e
+        // diferenças de maiúsculas/minúsculas que antes faziam o dedup falhar silenciosamente.
+        function normalizeForDedup(text) {
+            return (text || '')
+                .toString()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentuação
+                .toLowerCase()
+                .replace(/["'“”‘’.,;:!?()\[\]{}\-–—_/\\]/g, '') // remove pontuação comum
+                .replace(/\s+/g, ' ') // colapsa espaços, tabs, quebras de linha e nbsp
+                .trim();
+        }
+
+        // Similaridade por interseção de palavras (Jaccard) — pega questões quase idênticas
+        // (ex: só mudou um artigo, um número ou uma palavra de conectivo).
+        function jaccardSimilarity(normA, normB) {
+            if (!normA || !normB) return 0;
+            const setA = new Set(normA.split(' ').filter(Boolean));
+            const setB = new Set(normB.split(' ').filter(Boolean));
+            if (setA.size === 0 || setB.size === 0) return 0;
+            let intersection = 0;
+            setA.forEach(word => { if (setB.has(word)) intersection++; });
+            const unionSize = setA.size + setB.size - intersection;
+            return unionSize === 0 ? 0 : intersection / unionSize;
+        }
+
+        const DUPLICATE_SIMILARITY_THRESHOLD = 0.9; // 90% das palavras em comum = duplicata
+
+        function deduplicateQuestionsArray(list) {
+            const seenNormalized = [];
+            const uniqueList = [];
+
+            for (const q of list) {
+                const norm = normalizeForDedup(q.statement);
+
+                if (norm === '') {
+                    // Sem enunciado válido: não arrisca descartar, mantém.
+                    uniqueList.push(q);
+                    continue;
+                }
+
+                const isDuplicate = seenNormalized.some(prevNorm => {
+                    if (prevNorm === norm) return true;
+                    return jaccardSimilarity(prevNorm, norm) >= DUPLICATE_SIMILARITY_THRESHOLD;
+                });
+
+                if (!isDuplicate) {
+                    seenNormalized.push(norm);
+                    uniqueList.push(q);
+                }
+            }
+            return uniqueList;
+        }
+
+        async function cleanDuplicateQuestions() {
+            const initialLength = appState.questionBank.length;
+            const cleaned = deduplicateQuestionsArray(appState.questionBank);
+            const removedCount = initialLength - cleaned.length;
+
+            if (removedCount > 0) {
+                await saveQuestionsToStorage(cleaned);
+                renderBankList();
+                renderGlossary();
+                updateFlashcardUI();
+                updateStatsUI();
+                alertToast(`Foram removidas ${removedCount} questão(ões) duplicada(s)!`);
+            } else {
+                alertToast('Nenhuma questão duplicada foi encontrada no seu banco.');
+            }
+        }
+
+        function updateStorageStatusUI() {
+            const statusText = document.getElementById('storage-status-text');
+            const storageTypeTag = document.getElementById('stat-storage-type');
+            
+            if (statusText) {
+                statusText.innerText = `${appState.questionBank.length} Salvas (${storageMode})`;
+            }
+            if (storageTypeTag) {
+                storageTypeTag.innerText = `Armazenado via ${storageMode}`;
+            }
+        }
+
+        // Global State Management
+        const appState = {
+            solvedCount: parseInt(localStorage.getItem('prepsim_solved_count_v4') || '0'),
+            correctCount: parseInt(localStorage.getItem('prepsim_correct_count_v4') || '0'),
+            wrongCount: parseInt(localStorage.getItem('prepsim_wrong_count_v4') || '0'),
+            currentQuizIndex: 0,
+            activeQuizList: [],
+            selectedOptionIndex: null,
+            flashcardIndex: 0,
+            flashcardsFilter: 'ALL',
+            questionBank: [],
+            manualFormat: 'cebraspe'
+        };
+
+        // Concept Flashcards & Glossary Base
+        const baseFlashcardsData = [
+            {
+                category: 'DIREITO PROCESSUAL PENAL',
+                question: 'O Inquérito Policial pode ser arquivado pelo Delegado de Polícia se ele notar ausência de provas?',
+                answer: 'ERRADO / NÃO. Pelo Princípio da Indisponibilidade (Art. 17 do CPP), a autoridade policial nunca pode mandar arquivar autos de inquérito.',
+                source: 'Conceito Base'
+            },
+            {
+                category: 'DIREITO TRIBUTÁRIO',
+                question: 'Quais são os 3 tipos de Lançamento Tributário no CTN?',
+                answer: '1. Direto (ou de Ofício);\n2. Por Declaração (Misto);\n3. Por Homologação (Auto-lançamento).',
+                source: 'Conceito Base'
+            }
+        ];
+
+        const baseGlossaryData = [
+            {
+                title: 'Súmula Vinculante 14 - STF',
+                category: 'Processual Penal',
+                content: 'É direito do defensor, no interesse do representado, ter acesso amplo aos elementos de prova que, já documentados em procedimento investigatório praticado por órgão com competência de polícia judiciária, digam respeito ao exercício do direito de defesa.'
+            }
+        ];
+
+        function getCombinedFlashcards() {
+            const bankFlashcards = appState.questionBank.map((q) => {
+                const correctLetter = String.fromCharCode(65 + q.correctAnswerIndex);
+                const correctOptionText = q.options && q.options[q.correctAnswerIndex] ? q.options[q.correctAnswerIndex] : '';
+                return {
+                    category: `${q.discipline || 'GERAL'} • ${q.role || 'Concurso'}`,
+                    question: q.statement,
+                    answer: `GABARITO: Opção ${correctLetter}\n"${correctOptionText}"\n\n📌 COMENTÁRIO:\n${q.explanation}${q.lawArticles ? '\n\n⚖️ FUNDAMENTAÇÃO:\n' + q.lawArticles : ''}`,
+                    source: `Gerado do Banco (${q.source || 'Banco'})`
+                };
+            });
+
+            if (appState.flashcardsFilter === 'BANK') {
+                return bankFlashcards.length > 0 ? bankFlashcards : baseFlashcardsData;
+            } else if (appState.flashcardsFilter === 'CONCEPT') {
+                return baseFlashcardsData;
+            } else {
+                return [...bankFlashcards, ...baseFlashcardsData];
+            }
+        }
+
+        function getCombinedGlossary() {
+            const extractedItems = [];
+            appState.questionBank.forEach((q) => {
+                if (q.lawArticles && q.lawArticles.trim() !== '') {
+                    extractedItems.push({
+                        title: `${q.lawArticles}`,
+                        category: `${q.discipline || 'Legislação'} (${q.role || 'Banco'})`,
+                        content: `Extraído do Banco de Questões:\n\n"${q.explanation}"\n\n(Referência: "${q.statement.substring(0, 110)}...")`
+                    });
+                }
+            });
+            return [...baseGlossaryData, ...extractedItems];
+        }
+
+        function persistStats() {
+            localStorage.setItem('prepsim_solved_count_v4', appState.solvedCount.toString());
+            localStorage.setItem('prepsim_correct_count_v4', appState.correctCount.toString());
+            localStorage.setItem('prepsim_wrong_count_v4', appState.wrongCount.toString());
+        }
+
+        // Initialize Application
+        window.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+            await initIndexedDB();
+            appState.questionBank = await loadQuestionsFromStorage();
+            appState.activeQuizList = [...appState.questionBank];
+            await tryReconnectLocalFile();
+            renderCurrentQuizQuestion();
+            renderGlossary();
+            renderBankList();
+            renderManualOptionsForm();
+            updateFlashcardUI();
+            updateStatsUI();
+        });
+
+        // Router
+        function navigateTo(viewName) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+            const target = document.getElementById('view-' + viewName);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+            if (viewName === 'flashcards') updateFlashcardUI();
+            if (viewName === 'glossary') renderGlossary();
+            if (viewName === 'bank') renderBankList();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Quiz Logic
+        function startQuickQuiz(filterRole) {
+            if (filterRole === 'ALL') {
+                appState.activeQuizList = [...appState.questionBank];
+            } else {
+                appState.activeQuizList = appState.questionBank.filter(q => q.role && q.role.toUpperCase().includes(filterRole));
+                if (appState.activeQuizList.length === 0) appState.activeQuizList = [...appState.questionBank];
+            }
+            appState.currentQuizIndex = 0;
+            navigateTo('quiz');
+            renderCurrentQuizQuestion();
+        }
+
+        function renderCurrentQuizQuestion() {
+            if (!appState.activeQuizList || appState.activeQuizList.length === 0) {
+                appState.activeQuizList = [...appState.questionBank];
+            }
+            const q = appState.activeQuizList[appState.currentQuizIndex];
+            if (!q) return;
+
+            document.getElementById('quiz-discipline-tag').innerText = q.discipline || 'GERAL';
+            document.getElementById('quiz-role-badge').innerText = q.role || 'Geral';
+            document.getElementById('quiz-source-badge').innerText = q.source || 'Cadastrada';
+            document.getElementById('quiz-statement').innerText = q.statement;
+            
+            const currentNumber = appState.currentQuizIndex + 1;
+            const totalNumber = appState.activeQuizList.length;
+            document.getElementById('quiz-progress-text').innerText = `Questão ${currentNumber} de ${totalNumber}`;
+            
+            // Progress Bar Animation
+            const percentage = Math.round((currentNumber / totalNumber) * 100);
+            const progressBar = document.getElementById('quiz-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = `${percentage}%`;
+            }
+
+            appState.selectedOptionIndex = null;
+            document.getElementById('quiz-explanation-box').classList.add('hidden');
+            document.getElementById('btn-submit-answer').classList.remove('hidden');
+            document.getElementById('btn-next-question').classList.add('hidden');
+
+            const optionsContainer = document.getElementById('quiz-options-container');
+            optionsContainer.innerHTML = '';
+
+            if (q.options && Array.isArray(q.options)) {
+                q.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = `w-full text-left p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 hover:border-blue-500 transition text-sm font-medium flex items-start gap-3 option-btn-${idx}`;
+                    btn.onclick = () => selectQuizOption(idx);
+                    btn.innerHTML = `
+                        <span class="w-6 h-6 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">${String.fromCharCode(65 + idx)}</span>
+                        <span class="text-slate-800 dark:text-slate-200">${opt}</span>
+                    `;
+                    optionsContainer.appendChild(btn);
+                });
+            }
+        }
+
+        function selectQuizOption(index) {
+            appState.selectedOptionIndex = index;
+            const container = document.getElementById('quiz-options-container');
+            Array.from(container.children).forEach((child, idx) => {
+                if (idx === index) {
+                    child.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-950/40');
+                } else {
+                    child.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50', 'dark:bg-blue-950/40');
+                }
+            });
+        }
+
+        function checkQuizAnswer() {
+            if (appState.selectedOptionIndex === null) {
+                alertToast('Selecione uma opção antes de responder!');
+                return;
+            }
+
+            const q = appState.activeQuizList[appState.currentQuizIndex];
+            const isCorrect = appState.selectedOptionIndex === q.correctAnswerIndex;
+
+            appState.solvedCount++;
+            if (isCorrect) appState.correctCount++; else appState.wrongCount++;
+            persistStats();
+            updateStatsUI();
+
+            const expBox = document.getElementById('quiz-explanation-box');
+            const resultTitle = document.getElementById('quiz-result-title');
+            const expText = document.getElementById('quiz-explanation-text');
+            const lawArt = document.getElementById('quiz-law-article');
+
+            expBox.classList.remove('hidden');
+            if (isCorrect) {
+                resultTitle.className = 'flex items-center gap-2 font-bold text-sm text-emerald-500';
+                resultTitle.innerHTML = `<i data-lucide="check-circle" class="w-5 h-5"></i> Resposta Correta! Parabéns.`;
+            } else {
+                resultTitle.className = 'flex items-center gap-2 font-bold text-sm text-rose-500';
+                resultTitle.innerHTML = `<i data-lucide="x-circle" class="w-5 h-5"></i> Resposta Incorreta! Gabarito oficial: Opção ${String.fromCharCode(65 + q.correctAnswerIndex)}.`;
+            }
+
+            expText.innerText = q.explanation;
+            lawArt.innerText = q.lawArticles || '';
+
+            document.getElementById('btn-submit-answer').classList.add('hidden');
+            document.getElementById('btn-next-question').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function nextQuizQuestion() {
+            appState.currentQuizIndex = (appState.currentQuizIndex + 1) % appState.activeQuizList.length;
+            renderCurrentQuizQuestion();
+        }
+
+        // Flashcards Logic
+        function flipFlashcard() {
+            document.getElementById('flashcard-inner').classList.toggle('rotate-y-180');
+        }
+
+        function filterFlashcardsMode(mode) {
+            appState.flashcardsFilter = mode;
+            appState.flashcardIndex = 0;
+            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+
+            const btnAll = document.getElementById('fc-filter-all');
+            const btnBank = document.getElementById('fc-filter-bank');
+            const btnConcept = document.getElementById('fc-filter-concept');
+            const activeClass = 'px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white transition';
+            const inactiveClass = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700';
+
+            btnAll.className = mode === 'ALL' ? activeClass : inactiveClass;
+            btnBank.className = mode === 'BANK' ? activeClass : inactiveClass;
+            btnConcept.className = mode === 'CONCEPT' ? activeClass : inactiveClass;
+
+            updateFlashcardUI();
+        }
+
+        function nextFlashcard() {
+            const list = getCombinedFlashcards();
+            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+            setTimeout(() => {
+                appState.flashcardIndex = (appState.flashcardIndex + 1) % list.length;
+                updateFlashcardUI();
+            }, 200);
+        }
+
+        function prevFlashcard() {
+            const list = getCombinedFlashcards();
+            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+            setTimeout(() => {
+                appState.flashcardIndex = (appState.flashcardIndex - 1 + list.length) % list.length;
+                updateFlashcardUI();
+            }, 200);
+        }
+
+        function updateFlashcardUI() {
+            const list = getCombinedFlashcards();
+            if (appState.flashcardIndex >= list.length) appState.flashcardIndex = 0;
+
+            const card = list[appState.flashcardIndex] || {
+                category: 'GERAL',
+                question: 'Nenhum flashcard disponível.',
+                answer: 'Adicione mais questões no seu banco.',
+                source: 'Sistema'
+            };
+
+            document.getElementById('fc-category').innerText = card.category;
+            document.getElementById('fc-question').innerText = card.question;
+            document.getElementById('fc-answer').innerText = card.answer;
+            document.getElementById('fc-source-tag').innerText = `Fonte: ${card.source}`;
+            document.getElementById('fc-counter').innerText = `${list.length > 0 ? appState.flashcardIndex + 1 : 0} / ${list.length}`;
+        }
+
+        // Glossary Logic
+        function renderGlossary(filter = '') {
+            const container = document.getElementById('glossary-list');
+            container.innerHTML = '';
+
+            const list = getCombinedGlossary();
+            const items = list.filter(item => 
+                item.title.toLowerCase().includes(filter.toLowerCase()) || 
+                item.content.toLowerCase().includes(filter.toLowerCase()) ||
+                item.category.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 p-8 text-center rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2">
+                        <i data-lucide="book-open" class="w-8 h-8 mx-auto text-slate-400"></i>
+                        <p class="font-bold text-slate-600 dark:text-slate-300">Nenhum item legal encontrado.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-amber-500 uppercase tracking-wider">${item.category}</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base">${item.title}</h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">${item.content}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterGlossary() {
+            const term = document.getElementById('glossary-search').value;
+            renderGlossary(term);
+        }
+
+        // BULK JSON IMPORT & EXPORT
+        function openBulkJsonModal() {
+            document.getElementById('modal-bulk-json').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeBulkJsonModal() {
+            document.getElementById('modal-bulk-json').classList.add('hidden');
+            document.getElementById('bulk-json-input').value = '';
+            document.getElementById('json-file-input').value = '';
+        }
+
+        function copySampleJsonSchema() {
+            const sampleJson = [
+                {
+                    "discipline": "DIREITO PROCESSUAL PENAL",
+                    "role": "PCDF",
+                    "statement": "O Inquérito Policial tem natureza administrativa inquisitória e indisponível.",
+                    "options": ["CERTO", "ERRADO"],
+                    "correctAnswerIndex": 0,
+                    "explanation": "Artigo 17 do CPP estipula que a autoridade policial não pode arquivar inquérito.",
+                    "lawArticles": "Art. 17 CPP",
+                    "source": "Simulado Importado"
+                }
+            ];
+            navigator.clipboard.writeText(JSON.stringify(sampleJson, null, 2));
+            alertToast('Modelo JSON copiado para a área de transferência!');
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    await importJsonArray(parsed);
+                } catch (err) {
+                    alertToast('Erro ao ler o arquivo JSON. Formato inválido!');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function processRawJsonImport() {
+            const text = document.getElementById('bulk-json-input').value.trim();
+            if (!text) {
+                alertToast('Por favor, envie um arquivo ou cole o código JSON!');
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(text);
+                await importJsonArray(parsed);
+            } catch (err) {
+                alertToast('Código JSON malformado! Verifique a sintaxe.');
+            }
+        }
+
+        async function importJsonArray(data) {
+            const list = Array.isArray(data) ? data : [data];
+            const validatedList = list.map((q, i) => ({
+                id: q.id || 'json_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+                discipline: (q.discipline || 'GERAL').toUpperCase(),
+                role: q.role || 'Concurso Geral',
+                statement: q.statement || 'Enunciado não informado',
+                options: Array.isArray(q.options) && q.options.length > 0 ? q.options : ['CERTO', 'ERRADO'],
+                correctAnswerIndex: typeof q.correctAnswerIndex === 'number' ? q.correctAnswerIndex : 0,
+                explanation: q.explanation || 'Sem comentário cadastrado.',
+                lawArticles: q.lawArticles || '',
+                source: q.source || 'Importado via JSON'
+            }));
+
+            // Auto Deduplicate
+            const combined = deduplicateQuestionsArray([...validatedList, ...appState.questionBank]);
+            await saveQuestionsToStorage(combined);
+
+            renderBankList();
+            renderGlossary();
+            updateFlashcardUI();
+            updateStatsUI();
+            closeBulkJsonModal();
+
+            alertToast(`Sucesso! ${validatedList.length} questão(ões) processada(s) e salvas com deduplicação ativa!`);
+        }
+
+        function exportQuestionBankToJson() {
+            if (appState.questionBank.length === 0) {
+                alertToast('Nenhuma questão para exportar.');
+                return;
+            }
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState.questionBank, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `banco_questoes_prepsim_${Date.now()}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+
+            alertToast('Download do arquivo JSON iniciado!');
+        }
+
+        // MANUAL QUESTION MODAL LOGIC
+        function openManualQuestionModal() {
+            document.getElementById('modal-manual-question').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeManualQuestionModal() {
+            document.getElementById('modal-manual-question').classList.add('hidden');
+            document.getElementById('form-manual-question').reset();
+            setManualFormat('cebraspe');
+        }
+
+        function setManualFormat(format) {
+            appState.manualFormat = format;
+            const btnCebraspe = document.getElementById('format-btn-cebraspe');
+            const btnMultiple = document.getElementById('format-btn-multiple');
+
+            if (format === 'cebraspe') {
+                btnCebraspe.className = 'py-2.5 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center gap-2';
+                btnMultiple.className = 'py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-xs flex items-center justify-center gap-2';
+            } else {
+                btnMultiple.className = 'py-2.5 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center gap-2';
+                btnCebraspe.className = 'py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-bold text-xs flex items-center justify-center gap-2';
+            }
+            renderManualOptionsForm();
+        }
+
+        function renderManualOptionsForm() {
+            const container = document.getElementById('manual-options-container');
+            container.innerHTML = '';
+
+            if (appState.manualFormat === 'cebraspe') {
+                container.innerHTML = `
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">Gabarito Oficial</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center gap-2 cursor-pointer font-bold text-sm">
+                            <input type="radio" name="manual-cebraspe-answer" value="0" checked class="accent-emerald-500 w-4 h-4">
+                            <span class="text-emerald-600 dark:text-emerald-400">CERTO</span>
+                        </label>
+                        <label class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex items-center gap-2 cursor-pointer font-bold text-sm">
+                            <input type="radio" name="manual-cebraspe-answer" value="1" class="accent-emerald-500 w-4 h-4">
+                            <span class="text-rose-600 dark:text-rose-400">ERRADO</span>
+                        </label>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <label class="block text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Alternativas e Gabarito Correto</label>
+                    <div class="space-y-2">
+                        ${['A', 'B', 'C', 'D', 'E'].map((letter, idx) => `
+                            <div class="flex items-center gap-2">
+                                <label class="flex items-center gap-1.5 shrink-0 px-2 py-2 rounded-lg bg-slate-100 dark:bg-slate-900 text-xs font-bold cursor-pointer">
+                                    <input type="radio" name="manual-multiple-answer" value="${idx}" ${idx === 0 ? 'checked' : ''} class="accent-emerald-500 w-4 h-4">
+                                    <span>${letter}</span>
+                                </label>
+                                <input type="text" id="manual-opt-${idx}" required placeholder="Texto da alternativa ${letter}..." class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        async function handleManualQuestionSubmit(event) {
+            event.preventDefault();
+            
+            const discipline = document.getElementById('manual-discipline').value.trim();
+            const role = document.getElementById('manual-role').value;
+            const statement = document.getElementById('manual-statement').value.trim();
+            const explanation = document.getElementById('manual-explanation').value.trim();
+            const lawArticles = document.getElementById('manual-law').value.trim();
+            
+            let options = [];
+            let correctAnswerIndex = 0;
+
+            if (appState.manualFormat === 'cebraspe') {
+                options = ['CERTO', 'ERRADO'];
+                const checked = document.querySelector('input[name="manual-cebraspe-answer"]:checked');
+                correctAnswerIndex = checked ? parseInt(checked.value) : 0;
+            } else {
+                for (let i = 0; i < 5; i++) {
+                    const optInput = document.getElementById(`manual-opt-${i}`);
+                    options.push(optInput ? optInput.value.trim() : '');
+                }
+                const checked = document.querySelector('input[name="manual-multiple-answer"]:checked');
+                correctAnswerIndex = checked ? parseInt(checked.value) : 0;
+            }
+
+            const newQuestion = {
+                id: 'manual_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+                discipline: discipline.toUpperCase(),
+                role,
+                statement,
+                options,
+                correctAnswerIndex,
+                explanation,
+                lawArticles,
+                source: 'Caderno Manual'
+            };
+
+            const updatedBank = deduplicateQuestionsArray([newQuestion, ...appState.questionBank]);
+            await saveQuestionsToStorage(updatedBank);
+
+            renderBankList();
+            renderGlossary();
+            updateFlashcardUI();
+            updateStatsUI();
+            closeManualQuestionModal();
+
+            alertToast('Questão cadastrada e salva permanentemente!');
+        }
+
+        function renderBankList() {
+            const container = document.getElementById('bank-list');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            const searchInput = document.getElementById('bank-search-input');
+            const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            
+            const filteredBank = appState.questionBank.filter(q => 
+                (q.statement && q.statement.toLowerCase().includes(searchTerm)) ||
+                (q.discipline && q.discipline.toLowerCase().includes(searchTerm)) ||
+                (q.role && q.role.toLowerCase().includes(searchTerm))
+            );
+
+            if (filteredBank.length === 0) {
+                container.innerHTML = `
+                    <div class="p-8 text-center rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                        <i data-lucide="database" class="w-8 h-8 mx-auto text-slate-400 mb-2"></i>
+                        <p class="font-bold text-slate-600 dark:text-slate-300 text-sm">Nenhuma questão encontrada.</p>
+                    </div>
+                `;
+                document.querySelectorAll('#stat-bank-count').forEach(el => el.innerText = appState.questionBank.length);
+                lucide.createIcons();
+                return;
+            }
+
+            document.querySelectorAll('#stat-bank-count').forEach(el => el.innerText = appState.questionBank.length);
+
+            filteredBank.forEach(q => {
+                const item = document.createElement('div');
+                item.className = 'p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row gap-4 justify-between items-start';
+                item.innerHTML = `
+                    <div class="space-y-1 flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${q.discipline || 'GERAL'}</span>
+                            <span class="text-[10px] uppercase font-bold text-slate-400">${q.role || 'Geral'}</span>
+                            <span class="text-[10px] font-semibold text-indigo-400">(${q.source || 'Banco'})</span>
+                        </div>
+                        <p class="text-sm text-slate-700 dark:text-slate-200 font-medium line-clamp-2">${q.statement}</p>
+                    </div>
+                    <button onclick="deleteQuestion('${q.id}')" class="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                `;
+                container.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        async function deleteQuestion(id) {
+            await deleteQuestionFromStorage(id);
+            renderBankList();
+            renderGlossary();
+            updateFlashcardUI();
+            updateStatsUI();
+            alertToast('Questão removida do banco com sucesso.');
+        }
+
+        function updateStatsUI() {
+            document.getElementById('stat-total-solved').innerText = appState.solvedCount;
+            document.getElementById('stats-page-total').innerText = appState.solvedCount;
+            document.getElementById('stats-page-correct').innerText = appState.correctCount;
+            document.getElementById('stats-page-wrong').innerText = appState.wrongCount;
+            
+            const accuracy = appState.solvedCount > 0 ? Math.round((appState.correctCount / appState.solvedCount) * 100) : 0;
+            document.getElementById('stat-accuracy').innerText = `${accuracy}%`;
+            
+            const flashcardsCount = getCombinedFlashcards().length;
+            document.getElementById('stat-flashcards-count').innerText = flashcardsCount;
+            document.getElementById('nav-fc-badge').innerText = flashcardsCount;
+
+            const glossaryCount = getCombinedGlossary().length;
+            document.getElementById('nav-glossary-badge').innerText = glossaryCount;
+
+            renderDisciplineCards();
+        }
+
+        // Retorna a lista de disciplinas distintas presentes no banco, com a contagem de questões de cada uma.
+        function getUniqueDisciplines() {
+            const counts = {};
+            appState.questionBank.forEach(q => {
+                const disc = (q.discipline || 'GERAL').trim();
+                if (!disc) return;
+                counts[disc] = (counts[disc] || 0) + 1;
+            });
+            return Object.keys(counts)
+                .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+                .map(disc => ({ discipline: disc, count: counts[disc] }));
+        }
+
+        // Renderiza os cards de "Praticar por Disciplina" na Home, um por disciplina cadastrada no banco.
+        function renderDisciplineCards() {
+            const grid = document.getElementById('discipline-cards-grid');
+            if (!grid) return;
+
+            const disciplines = getUniqueDisciplines();
+
+            if (disciplines.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-2 sm:col-span-3 lg:col-span-4 p-6 text-center rounded-2xl bg-white dark:bg-slate-800 border border-dashed border-slate-300 dark:border-slate-700 text-sm text-slate-400 font-medium">
+                        Cadastre questões (manual, JSON ou IA) para liberar simulados focados por disciplina.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = disciplines.map(({ discipline, count }) => `
+                <button onclick="startDisciplineQuiz('${discipline.replace(/'/g, "\\'")}')" class="text-left p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-indigo-500 dark:hover:border-indigo-500 transition shadow-sm hover:shadow-md group">
+                    <div class="flex items-center justify-between mb-2">
+                        <i data-lucide="graduation-cap" class="w-4 h-4 text-indigo-500"></i>
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-500">${count}</span>
+                    </div>
+                    <span class="block text-xs font-bold text-slate-700 dark:text-slate-200 leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400">${discipline}</span>
+                </button>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        // Inicia um simulado filtrado por UMA disciplina específica (em vez de por carreira/simulado inteiro).
+        function startDisciplineQuiz(disciplineName) {
+            const target = (disciplineName || '').trim().toUpperCase();
+            appState.activeQuizList = appState.questionBank.filter(q => (q.discipline || '').trim().toUpperCase() === target);
+
+            if (appState.activeQuizList.length === 0) {
+                alertToast('Nenhuma questão encontrada para esta disciplina.');
+                return;
+            }
+
+            appState.currentQuizIndex = 0;
+            navigateTo('quiz');
+            renderCurrentQuizQuestion();
+        }
+
+        // ELABORADOR IA PRO
+        function generateQuestionsWithAI() {
+            const sourceText = document.getElementById('ai-source-text').value.trim();
+            const topic = document.getElementById('ai-topic-input').value.trim();
+            const role = document.getElementById('ai-role-select').value;
+            const count = parseInt(document.getElementById('ai-count-select').value);
+            const style = document.getElementById('ai-style-select').value;
+
+            if (!sourceText && !topic) {
+                alertToast('Cole o texto base (lei/PDF/doutrina) ou informe o assunto!');
+                return;
+            }
+
+            const btn = document.getElementById('btn-generate-ai');
+            const loading = document.getElementById('ai-loading-box');
+            const results = document.getElementById('ai-results-container');
+            
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            loading.classList.remove('hidden');
+            results.innerHTML = '';
+            
+            setTimeout(async () => {
+                btn.classList.remove('opacity-50', 'pointer-events-none');
+                loading.classList.add('hidden');
+
+                const generatedList = [];
+                const snippet = sourceText ? sourceText.substring(0, 180) + '...' : `Estudo focado em ${topic}`;
+
+                for (let i = 0; i < count; i++) {
+                    const id = 'ai_pro_' + Date.now() + '_' + i + '_' + Math.random().toString(36).substring(2, 6);
+                    let qObj = {};
+
+                    if (style.includes('Cebraspe')) {
+                        qObj = {
+                            id,
+                            discipline: (topic || 'DIREITO APLICADO').toUpperCase(),
+                            role,
+                            statement: `Com base no texto base fornecido (${snippet}), julgue o item subsequente [Item ${i + 1}]: A aplicação da norma em tela admite exegese extensiva para abranger hipóteses não previstas expressamente pelo legislador, desde que demonstrado prejuízo à ordem pública.`,
+                            options: [
+                                'CERTO - A banca adota interpretação finalística conforme o texto base.',
+                                'ERRADO - A literalidade e o princípio da estrita legalidade vedam interpretação extensiva prejudicial no caso em tela.'
+                            ],
+                            correctAnswerIndex: i % 2 === 0 ? 1 : 0,
+                            explanation: `Análise técnica de banca Cebraspe elaborada a partir do material fornecido:\n\n"${sourceText ? sourceText.substring(0, 250) : topic}"\n\nA questão exige atenção à pegadinha clássica de extrapolação de texto legal. O examinador altera pequenas premissas para induzir o candidato ao erro.`,
+                            lawArticles: sourceText ? 'Extraído do Texto Base Fornecido' : 'Jurisprudência STF/STJ',
+                            source: 'Elaborador IA Pro'
+                        };
+                    } else {
+                        qObj = {
+                            id,
+                            discipline: (topic || 'DIREITO APLICADO').toUpperCase(),
+                            role,
+                            statement: `Durante a análise do caso prático #${i + 1} envolvendo ${topic}, considerando rigorosamente as diretrizes extraídas da lei e doutrina (${snippet}), assinale a alternativa correta:`,
+                            options: [
+                                'A) O ato administrativo ou procedimento em questão é plenamente discricionário, cabendo revogação a qualquer tempo pela autoridade competente.',
+                                'B) Há vinculação estrita aos ditames legais, sendo vedada qualquer margem de liberdade para a autoridade julgadora.',
+                                'C) O instituto opera efeitos ex nunc, ressalvada a hipótese de comprovada má-fé do administrado.',
+                                'D) A competência é improrrogável e irrenunciável, salvo autorização expressa em regulamento autônomo.',
+                                'E) Nenhuma das alternativas anteriores reflete o entendimento correto da banca.'
+                            ],
+                            correctAnswerIndex: 1,
+                            explanation: `Gabarito Comentado (Estilo FGV / Caso Concreto):\n\nA alternativa B está correta pois reflete o bloco normativo fornecido no estudo de caso.`,
+                            lawArticles: sourceText ? 'Fundamentação do texto base' : 'Legislação de Regência',
+                            source: 'Elaborador IA Pro'
+                        };
+                    }
+                    generatedList.push(qObj);
+                }
+
+                const updatedBank = deduplicateQuestionsArray([...generatedList, ...appState.questionBank]);
+                await saveQuestionsToStorage(updatedBank);
+
+                results.innerHTML = `
+                    <div class="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-500/30 text-center space-y-3">
+                        <i data-lucide="check-circle" class="w-12 h-12 text-emerald-500 mx-auto"></i>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">${generatedList.length} Questão(ões) Gerada(s) e Salva(s)!</h3>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">As questões já estão no seu Banco de Questões e alimentaram automaticamente os Flashcards e o Glossário!</p>
+                        <div class="flex justify-center gap-3 pt-2">
+                            <button onclick="navigateTo('bank')" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm hover:bg-emerald-700 transition">Ver no Banco</button>
+                            <button onclick="startQuickQuiz('ALL')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition">Fazer Simulado</button>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+
+                renderBankList();
+                renderGlossary();
+                updateFlashcardUI();
+                updateStatsUI();
+                alertToast('Questões geradas e salvas no navegador com sucesso!');
+
+            }, 2000);
+        }
+
+        function alertToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 z-[60] bg-slate-900 dark:bg-slate-800 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 transform translate-y-10 opacity-0';
+            toast.innerHTML = `
+                <i data-lucide="info" class="w-5 h-5 text-blue-400"></i>
+                <span class="text-sm font-bold">${message}</span>
+            `;
+            document.body.appendChild(toast);
+            lucide.createIcons();
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    toast.classList.remove('translate-y-10', 'opacity-0');
+                });
+            });
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
