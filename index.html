@@ -112,6 +112,10 @@
                         <span id="storage-status-text">Banco Ativo</span>
                     </div>
 
+                    <button onclick="cloudBadgeClicked()" id="cloud-status-badge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-500 border border-slate-300 dark:border-slate-600 text-xs font-bold transition hover:opacity-80" title="Clique para sincronizar da nuvem ou trocar a URL">
+                        ☁️ Nuvem
+                    </button>
+
                     <button onclick="openBulkJsonModal()" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-600/10 hover:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 font-bold text-xs transition">
                         <i data-lucide="file-up" class="w-4 h-4"></i> Importar / Exportar JSON
                     </button>
@@ -148,6 +152,9 @@
             </button>
             <button onclick="openBulkJsonModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-purple-500 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold">
                 <i data-lucide="file-up" class="w-4 h-4"></i> Importar Questões em JSON
+            </button>
+            <button onclick="syncFromCloudNow(); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-sky-500 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold">
+                ☁️ Sincronizar da Nuvem
             </button>
             <button onclick="openManualQuestionModal(); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-emerald-500 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold">
                 <i data-lucide="plus-circle" class="w-4 h-4"></i> Cadastrar Questão Manual
@@ -906,6 +913,9 @@
                 await writeToLocalFileHandle(localFileHandle, questionsList);
             }
 
+            // Sincroniza com a planilha na nuvem em segundo plano (não bloqueia a UI)
+            syncNewQuestionsToCloud(questionsList);
+
             // Sync active quiz if necessary
             if (!appState.activeQuizList || appState.activeQuizList.length === 0) {
                 appState.activeQuizList = [...appState.questionBank];
@@ -1069,6 +1079,157 @@
                     console.warn(err);
                     alertToast('Não foi possível conectar ao arquivo. Tente novamente.');
                 }
+            }
+        }
+
+        // ===================== NUVEM (Google Sheets + Apps Script) =====================
+        // A planilha vira o banco "de verdade" para grandes volumes (dezenas de milhares de questões).
+        // O app continua salvando local (rápido, funciona offline), e envia em segundo plano toda
+        // questão nova para a planilha. Os simulados, quando a nuvem está disponível, pedem uma
+        // amostra aleatória direto de lá (sem precisar carregar o banco inteiro no navegador).
+
+        const DEFAULT_CLOUD_API_URL = 'https://script.google.com/macros/s/AKfycbz1qmBnITdxO-3JU8RA75FJzE5tud-QhG0ZdVv1Z5Jl38IIJHNYZ7A_ZuEwRk3QSqRsLg/exec';
+        const CLOUD_URL_STORAGE_KEY = 'prepsim_cloud_api_url';
+        const SYNCED_IDS_KEY = 'prepsim_synced_ids_v1';
+
+        function getCloudApiUrl() {
+            try {
+                return (localStorage.getItem(CLOUD_URL_STORAGE_KEY) || DEFAULT_CLOUD_API_URL || '').trim();
+            } catch (e) {
+                return DEFAULT_CLOUD_API_URL;
+            }
+        }
+
+        function isCloudConfigured() {
+            return !!getCloudApiUrl();
+        }
+
+        function configureCloudApiUrl() {
+            const current = getCloudApiUrl();
+            const url = prompt('Cole aqui a URL do seu Google Apps Script (terminando em /exec):', current || '');
+            if (url === null) return;
+            try {
+                localStorage.setItem(CLOUD_URL_STORAGE_KEY, url.trim());
+                alertToast('URL da nuvem atualizada!');
+                updateCloudStatusUI(null);
+            } catch (e) {
+                alertToast('Não foi possível salvar a URL.');
+            }
+        }
+
+        function getSyncedIdsSet() {
+            try {
+                const raw = localStorage.getItem(SYNCED_IDS_KEY);
+                return new Set(raw ? JSON.parse(raw) : []);
+            } catch (e) {
+                return new Set();
+            }
+        }
+
+        function addSyncedIds(ids) {
+            try {
+                const set = getSyncedIdsSet();
+                ids.forEach(id => id && set.add(id));
+                localStorage.setItem(SYNCED_IDS_KEY, JSON.stringify(Array.from(set)));
+            } catch (e) {
+                console.warn('Não foi possível registrar IDs sincronizados:', e);
+            }
+        }
+
+        function updateCloudStatusUI(state) {
+            // state: true = ok, false = erro, null/undefined = neutro
+            const badge = document.getElementById('cloud-status-badge');
+            if (!badge) return;
+            badge.classList.remove('bg-emerald-500/10', 'text-emerald-600', 'dark:text-emerald-400', 'border-emerald-500/20',
+                                    'bg-red-500/10', 'text-red-500', 'border-red-500/20',
+                                    'bg-slate-200', 'dark:bg-slate-700', 'text-slate-500', 'border-slate-300', 'dark:border-slate-600');
+            if (state === true) {
+                badge.classList.add('bg-emerald-500/10', 'text-emerald-600', 'dark:text-emerald-400', 'border-emerald-500/20');
+                badge.innerText = '☁️ Sincronizado';
+            } else if (state === false) {
+                badge.classList.add('bg-red-500/10', 'text-red-500', 'border-red-500/20');
+                badge.innerText = '☁️ Erro na nuvem';
+            } else {
+                badge.classList.add('bg-slate-200', 'dark:bg-slate-700', 'text-slate-500', 'border-slate-300', 'dark:border-slate-600');
+                badge.innerText = '☁️ Nuvem';
+            }
+        }
+
+        // Clique no badge do header: sincroniza agora; segure Alt/Option e clique para trocar a URL configurada.
+        function cloudBadgeClicked(event) {
+            if (event && (event.altKey || event.metaKey)) {
+                configureCloudApiUrl();
+                return;
+            }
+            syncFromCloudNow();
+        }
+
+        // Envia para a planilha, em segundo plano, apenas as questões que ainda não foram sincronizadas.
+        async function syncNewQuestionsToCloud(fullBankList) {
+            if (!isCloudConfigured()) return;
+            const synced = getSyncedIdsSet();
+            const pending = (fullBankList || []).filter(q => q && q.id && !synced.has(q.id));
+            if (pending.length === 0) return;
+
+            try {
+                const response = await fetch(getCloudApiUrl(), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS (Apps Script não trata OPTIONS)
+                    body: JSON.stringify(pending)
+                });
+                const result = await response.json();
+                if (result && result.success) {
+                    addSyncedIds(pending.map(q => q.id));
+                    updateCloudStatusUI(true);
+                } else {
+                    updateCloudStatusUI(false);
+                }
+            } catch (err) {
+                console.warn('Falha ao sincronizar com a nuvem:', err);
+                updateCloudStatusUI(false);
+            }
+        }
+
+        // Busca uma amostra aleatória direto da planilha — o navegador nunca precisa carregar
+        // o banco inteiro (essencial para dezenas de milhares de questões). Retorna null se falhar.
+        async function fetchCloudSample(count, discipline, role) {
+            if (!isCloudConfigured()) return null;
+            try {
+                const params = new URLSearchParams({ action: 'sample', count: String(count || 10) });
+                if (discipline && discipline !== 'ALL') params.set('discipline', discipline);
+                if (role && role !== 'ALL') params.set('role', role);
+                const response = await fetch(`${getCloudApiUrl()}?${params.toString()}`);
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const data = await response.json();
+                if (!Array.isArray(data)) return null;
+                updateCloudStatusUI(true);
+                return data;
+            } catch (err) {
+                console.warn('Não foi possível buscar amostra da nuvem, usando banco local:', err);
+                updateCloudStatusUI(false);
+                return null;
+            }
+        }
+
+        // Puxa a lista inteira da planilha e mescla no banco local — útil ao abrir em um dispositivo novo.
+        async function syncFromCloudNow() {
+            if (!isCloudConfigured()) {
+                alertToast('Nenhuma URL da nuvem configurada. Segure Alt e clique no botão da nuvem para configurar.');
+                return;
+            }
+            alertToast('Buscando questões da planilha...');
+            try {
+                const response = await fetch(`${getCloudApiUrl()}?action=list`);
+                const data = await response.json();
+                if (!Array.isArray(data)) throw new Error('Resposta inválida da nuvem');
+                addSyncedIds(data.map(q => q.id)); // já veio de lá, não precisa reenviar
+                await importJsonArray(data);
+                updateCloudStatusUI(true);
+                alertToast(`${data.length} questões sincronizadas da nuvem!`);
+            } catch (err) {
+                console.warn(err);
+                updateCloudStatusUI(false);
+                alertToast('Erro ao buscar da nuvem. Confira a URL configurada (Alt + clique no botão Nuvem).');
             }
         }
 
@@ -1290,6 +1451,10 @@
             appState.questionBank = await loadQuestionsFromStorage();
             appState.activeQuizList = [...appState.questionBank];
             await tryReconnectLocalFile();
+            updateCloudStatusUI(null);
+            if (appState.questionBank.length === 0 && isCloudConfigured()) {
+                syncFromCloudNow(); // primeiro acesso num dispositivo novo: puxa o que já está na planilha
+            }
             renderCurrentQuizQuestion();
             renderGlossary();
             renderBankList();
@@ -1320,8 +1485,12 @@
         });
 
         // Quiz Logic
-        function startQuickQuiz(filterRole) {
-            if (filterRole === 'ALL') {
+        async function startQuickQuiz(filterRole) {
+            let cloudSample = await fetchCloudSample(10, null, filterRole === 'ALL' ? null : filterRole);
+
+            if (cloudSample && cloudSample.length > 0) {
+                appState.activeQuizList = cloudSample;
+            } else if (filterRole === 'ALL') {
                 appState.activeQuizList = [...appState.questionBank];
             } else {
                 appState.activeQuizList = appState.questionBank.filter(q => q.role && q.role.toUpperCase().includes(filterRole));
@@ -1887,9 +2056,16 @@
         }
 
         // Inicia um simulado filtrado por UMA disciplina específica (em vez de por carreira/simulado inteiro).
-        function startDisciplineQuiz(disciplineName) {
-            const target = (disciplineName || '').trim().toUpperCase();
-            appState.activeQuizList = appState.questionBank.filter(q => (q.discipline || '').trim().toUpperCase() === target);
+        async function startDisciplineQuiz(disciplineName) {
+            const target = (disciplineName || '').trim();
+            const cloudSample = await fetchCloudSample(10, target, null);
+
+            if (cloudSample && cloudSample.length > 0) {
+                appState.activeQuizList = cloudSample;
+            } else {
+                const targetUpper = target.toUpperCase();
+                appState.activeQuizList = appState.questionBank.filter(q => (q.discipline || '').trim().toUpperCase() === targetUpper);
+            }
 
             if (appState.activeQuizList.length === 0) {
                 alertToast('Nenhuma questão encontrada para esta disciplina.');
