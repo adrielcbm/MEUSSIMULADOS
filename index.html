@@ -372,16 +372,21 @@
             </div>
 
             <!-- Filter Tabs for Flashcards -->
-            <div class="flex items-center justify-center gap-2 max-w-xl mx-auto flex-wrap">
-                <button onclick="filterFlashcardsMode('ALL')" id="fc-filter-all" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white transition">
-                    Todos os Cards
-                </button>
-                <button onclick="filterFlashcardsMode('BANK')" id="fc-filter-bank" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
-                    Gerados do Banco
-                </button>
-                <button onclick="filterFlashcardsMode('CONCEPT')" id="fc-filter-concept" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
-                    Conceituais Originais
-                </button>
+            <div class="flex flex-col items-center gap-3 max-w-xl mx-auto">
+                <div class="flex items-center justify-center gap-2 flex-wrap">
+                    <button onclick="filterFlashcardsMode('ALL')" id="fc-filter-all" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white transition">
+                        Todos os Cards
+                    </button>
+                    <button onclick="filterFlashcardsMode('BANK')" id="fc-filter-bank" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
+                        Gerados do Banco
+                    </button>
+                    <button onclick="filterFlashcardsMode('CONCEPT')" id="fc-filter-concept" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
+                        Conceituais Originais
+                    </button>
+                </div>
+                <select id="fc-discipline-filter" onchange="filterFlashcardsByDiscipline()" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="ALL">Todas as Disciplinas</option>
+                </select>
             </div>
 
             <!-- 3D Card Container -->
@@ -395,7 +400,7 @@
                             <span class="flex items-center gap-1"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Clique p/ Virar</span>
                         </div>
                         <div class="my-auto text-center">
-                            <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 leading-relaxed" id="fc-question">
+                            <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-line" id="fc-question">
                                 Carregando Flashcard...
                             </p>
                         </div>
@@ -1160,6 +1165,7 @@
             selectedOptionIndex: null,
             flashcardIndex: 0,
             flashcardsFilter: 'ALL',
+            flashcardsDisciplineFilter: 'ALL',
             questionBank: [],
             manualFormat: 'cebraspe'
         };
@@ -1188,25 +1194,73 @@
             }
         ];
 
+        // Identifica o "conceito" por trás de uma questão (não a questão em si), para agrupar
+        // várias questões que testam a MESMA regra/artigo num único flashcard, em vez de repetir.
+        function getFlashcardConceptKey(q) {
+            const discipline = (q.discipline || 'GERAL').trim().toUpperCase();
+            const law = (q.lawArticles || '').trim();
+            if (law) return `${discipline}::${law.toUpperCase()}`;
+            // Sem base legal cadastrada: usa o início normalizado do enunciado como identificador do conceito.
+            const normalizedStart = normalizeForDedup(q.statement).split(' ').slice(0, 8).join(' ');
+            return `${discipline}::${normalizedStart}`;
+        }
+
+        // Monta a FRENTE do flashcard como uma pergunta de revisão do conceito/tema,
+        // em vez de simplesmente repetir o enunciado inteiro do caso concreto da questão.
+        function buildConceptQuestionFront(q) {
+            const discipline = q.discipline || 'GERAL';
+            if (q.lawArticles && q.lawArticles.trim()) {
+                return `Revisão de Conceito — ${discipline}\n\nO que você precisa lembrar sobre:\n"${q.lawArticles.trim()}"?`;
+            }
+            const firstSentence = (q.statement || '').split(/(?<=[.?!])\s/)[0] || q.statement || '';
+            const shortTopic = firstSentence.length > 140 ? firstSentence.slice(0, 140) + '...' : firstSentence;
+            return `Revisão de Conceito — ${discipline}\n\nQual o entendimento correto sobre:\n"${shortTopic}"?`;
+        }
+
         function getCombinedFlashcards() {
-            const bankFlashcards = appState.questionBank.map((q) => {
-                const correctLetter = String.fromCharCode(65 + q.correctAnswerIndex);
-                const correctOptionText = q.options && q.options[q.correctAnswerIndex] ? q.options[q.correctAnswerIndex] : '';
-                return {
-                    category: `${q.discipline || 'GERAL'} • ${q.role || 'Concurso'}`,
-                    question: q.statement,
-                    answer: `GABARITO: Opção ${correctLetter}\n"${correctOptionText}"\n\n📌 COMENTÁRIO:\n${q.explanation}${q.lawArticles ? '\n\n⚖️ FUNDAMENTAÇÃO:\n' + q.lawArticles : ''}`,
-                    source: `Gerado do Banco (${q.source || 'Banco'})`
-                };
+            const conceptMap = new Map();
+
+            appState.questionBank.forEach((q) => {
+                const key = getFlashcardConceptKey(q);
+                if (conceptMap.has(key)) {
+                    conceptMap.get(key).relatedCount += 1;
+                    return; // já existe flashcard para esse conceito — não duplica
+                }
+                conceptMap.set(key, {
+                    category: q.discipline || 'GERAL',
+                    question: buildConceptQuestionFront(q),
+                    answer: `📌 CONCEITO:\n${q.explanation}${q.lawArticles ? '\n\n⚖️ BASE LEGAL:\n' + q.lawArticles : ''}`,
+                    source: `Gerado do Banco (${q.source || 'Banco'})`,
+                    relatedCount: 1
+                });
             });
 
+            let bankFlashcards = Array.from(conceptMap.values()).map(card => ({
+                ...card,
+                answer: card.relatedCount > 1
+                    ? `${card.answer}\n\n(Baseado em ${card.relatedCount} questões do seu banco sobre este mesmo conceito)`
+                    : card.answer
+            }));
+
+            // Agrupa por disciplina na sequência, para a revisão não pular de assunto em assunto.
+            bankFlashcards.sort((a, b) => a.category.localeCompare(b.category, 'pt-BR'));
+
+            let combinedList;
             if (appState.flashcardsFilter === 'BANK') {
-                return bankFlashcards.length > 0 ? bankFlashcards : baseFlashcardsData;
+                combinedList = bankFlashcards.length > 0 ? bankFlashcards : baseFlashcardsData;
             } else if (appState.flashcardsFilter === 'CONCEPT') {
-                return baseFlashcardsData;
+                combinedList = baseFlashcardsData;
             } else {
-                return [...bankFlashcards, ...baseFlashcardsData];
+                combinedList = [...bankFlashcards, ...baseFlashcardsData];
             }
+
+            if (appState.flashcardsDisciplineFilter && appState.flashcardsDisciplineFilter !== 'ALL') {
+                combinedList = combinedList.filter(card =>
+                    (card.category || '').trim().toUpperCase() === appState.flashcardsDisciplineFilter.trim().toUpperCase()
+                );
+            }
+
+            return combinedList;
         }
 
         function getCombinedGlossary() {
@@ -1417,7 +1471,27 @@
             }, 200);
         }
 
+        function populateFlashcardDisciplineFilter() {
+            const select = document.getElementById('fc-discipline-filter');
+            if (!select) return;
+            const current = appState.flashcardsDisciplineFilter || 'ALL';
+            const disciplines = getUniqueDisciplines();
+            select.innerHTML = '<option value="ALL">Todas as Disciplinas</option>' +
+                disciplines.map(d => `<option value="${d.discipline}">${d.discipline} (${d.count})</option>`).join('');
+            select.value = disciplines.some(d => d.discipline === current) ? current : 'ALL';
+            appState.flashcardsDisciplineFilter = select.value;
+        }
+
+        function filterFlashcardsByDiscipline() {
+            const select = document.getElementById('fc-discipline-filter');
+            appState.flashcardsDisciplineFilter = select ? select.value : 'ALL';
+            appState.flashcardIndex = 0;
+            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
+            updateFlashcardUI();
+        }
+
         function updateFlashcardUI() {
+            populateFlashcardDisciplineFilter();
             const list = getCombinedFlashcards();
             if (appState.flashcardIndex >= list.length) appState.flashcardIndex = 0;
 
