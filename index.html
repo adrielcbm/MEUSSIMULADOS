@@ -11,15 +11,40 @@
             darkMode: 'class',
             theme: {
                 extend: {
+                    fontFamily: {
+                        display: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif']
+                    },
                     colors: {
-                        brand: {
-                            50: '#f0f7ff',
-                            100: '#e0effe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
-                        }
+                        // Paleta reformulada: neutros mais quentes (menos "cansativo à vista" que
+                        // o cinza-azulado padrão) + um único tom principal (em vez de azul, índigo
+                        // e roxo competindo entre si). Âmbar e esmeralda ficam reservados para
+                        // destaque/glossário e feedback de acerto, respectivamente.
+                        slate: {
+                            50: '#FAFAF9', 100: '#F2F0EC', 200: '#E4E0D8', 300: '#CFC8BB',
+                            400: '#A79E8E', 500: '#7C7364', 600: '#5C5548', 700: '#453F35',
+                            800: '#2B2723', 900: '#1B1815', 950: '#100E0C'
+                        },
+                        indigo: {
+                            50: '#EEF4F3', 400: '#6C9E9C', 500: '#4A807D', 600: '#396765',
+                            700: '#2C514F', 900: '#173231', 950: '#0F2221'
+                        },
+                        blue: {
+                            50: '#EEF4F3', 400: '#6C9E9C', 500: '#4A807D', 600: '#396765',
+                            700: '#2C514F', 950: '#0F2221'
+                        },
+                        purple: {
+                            400: '#6C9E9C', 500: '#4A807D', 600: '#396765'
+                        },
+                        sky: { 500: '#4A807D' },
+                        emerald: {
+                            50: '#EFF6EE', 200: '#CFE2CE', 300: '#AED0AC', 400: '#7FB57E',
+                            500: '#5C9C5C', 600: '#487D49', 700: '#3A6539', 900: '#1F3820'
+                        },
+                        amber: {
+                            300: '#E7C589', 400: '#DBAA5C', 500: '#C89043', 600: '#A87633', 700: '#845E29'
+                        },
+                        red: { 500: '#C15C4B' }
                     }
                 }
             }
@@ -27,39 +52,40 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Fontes: Inter para UI/corpo, Fraunces para títulos (identidade própria, não genérica) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* 3D Flip Card Effect */
-        .perspective-1000 {
-            perspective: 1000px;
+        h1, h2, .font-display {
+            font-family: 'Fraunces', serif;
+            letter-spacing: -0.01em;
         }
-        .transform-style-3d {
-            transform-style: preserve-3d;
+        /* Transição suave ao trocar de tela — um único momento orquestrado, não animações espalhadas */
+        .view-section:not(.hidden) {
+            animation: viewFadeIn 0.35s ease-out;
         }
-        .backface-hidden {
-            backface-visibility: hidden;
-            -webkit-backface-visibility: hidden;
+        @keyframes viewFadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .rotate-y-180 {
-            transform: rotateY(180deg);
+        @media (prefers-reduced-motion: reduce) {
+            .view-section:not(.hidden) { animation: none; }
         }
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(27, 24, 21, 0.4);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(51, 65, 85, 0.8);
+            background: rgba(124, 115, 100, 0.5);
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(71, 85, 105, 1);
+            background: rgba(124, 115, 100, 0.8);
         }
     </style>
 </head>
@@ -71,11 +97,11 @@
             <div class="flex items-center justify-between h-16">
                 <!-- Logo -->
                 <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-sm">
                         <i data-lucide="shield-check" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <span class="font-black text-lg tracking-tight bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 bg-clip-text text-transparent">PrepSimulados</span>
+                        <span class="font-display font-semibold text-lg tracking-tight text-slate-900 dark:text-white">PrepSimulados</span>
                         <span class="block text-[10px] font-bold tracking-widest uppercase text-slate-400">Auditor Fiscal & PCDF</span>
                     </div>
                 </div>
@@ -87,9 +113,6 @@
                     </button>
                     <button onclick="navigateTo('quiz')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
                         <i data-lucide="help-circle" class="w-4 h-4"></i> Simulados
-                    </button>
-                    <button onclick="navigateTo('flashcards')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-2">
-                        <i data-lucide="layers" class="w-4 h-4"></i> Flashcards <span id="nav-fc-badge" class="px-1.5 py-0.5 text-[10px] bg-purple-500/20 text-purple-400 rounded-full font-bold">0</span>
                     </button>
                     <button onclick="navigateTo('ai-gen')" class="nav-btn px-3 py-2 rounded-lg text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition flex items-center gap-2 font-semibold">
                         <i data-lucide="sparkles" class="w-4 h-4"></i> Elaborador IA Pro
@@ -144,9 +167,6 @@
             <button onclick="navigateTo('quiz'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
                 <i data-lucide="help-circle" class="w-4 h-4"></i> Simulados
             </button>
-            <button onclick="navigateTo('flashcards'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 hover:bg-slate-100 dark:hover:bg-slate-800">
-                <i data-lucide="layers" class="w-4 h-4"></i> Flashcards
-            </button>
             <button onclick="navigateTo('ai-gen'); toggleMobileMenu()" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center gap-3 text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800">
                 <i data-lucide="sparkles" class="w-4 h-4"></i> Elaborador IA Pro
             </button>
@@ -177,23 +197,23 @@
         <!-- ==================== HOME VIEW ==================== -->
         <section id="view-home" class="view-section space-y-8">
             <!-- Hero Banner -->
-            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-12 border border-slate-800 shadow-2xl">
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-8 sm:p-12 border border-slate-800 shadow-xl">
                 <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="relative z-10 max-w-2xl space-y-4">
                     <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Persistência Ativa (LocalStorage + IndexedDB)
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Backup Local + Sincronização na Nuvem
                     </span>
-                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                        Domine a banca <span class="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Cebraspe & FGV</span>
+                    <h1 class="text-3xl sm:text-5xl font-semibold tracking-tight text-white leading-tight">
+                        Domine a banca <span class="text-indigo-300">Cebraspe & FGV</span>
                     </h1>
                     <p class="text-slate-300 text-base sm:text-lg">
-                        Suas questões manuais, importadas e geradas pela IA ficam <strong>salvas permanentemente</strong> no seu navegador. Use o <strong class="text-white">Elaborador IA Pro</strong> para converter leis e PDFs em simulados práticos!
+                        Suas questões manuais, importadas e geradas pela IA ficam <strong>salvas permanentemente</strong>. Use o <strong class="text-white">Elaborador IA Pro</strong> para converter leis e PDFs em simulados práticos!
                     </p>
                     <div class="flex flex-wrap gap-3 pt-2">
-                        <button onclick="startQuickQuiz('ALL')" class="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-blue-600/30">
+                        <button onclick="startQuickQuiz('ALL')" class="px-6 py-3.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-semibold transition flex items-center gap-2 shadow-lg shadow-indigo-900/40">
                             <i data-lucide="play" class="w-5 h-5"></i> Iniciar Simulado
                         </button>
-                        <button onclick="navigateTo('ai-gen')" class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+                        <button onclick="navigateTo('ai-gen')" class="px-6 py-3.5 rounded-xl bg-transparent border border-slate-600 hover:border-indigo-400 hover:text-indigo-300 text-slate-200 font-semibold transition flex items-center gap-2">
                             <i data-lucide="sparkles" class="w-5 h-5"></i> Usar Elaborador IA Pro
                         </button>
                     </div>
@@ -231,11 +251,11 @@
 
                 <div class="p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 shadow-sm">
                     <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                        <span class="text-xs font-bold uppercase tracking-wider">Flashcards</span>
-                        <i data-lucide="layers" class="w-5 h-5 text-amber-500"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider">Glossário</span>
+                        <i data-lucide="book-open" class="w-5 h-5 text-amber-500"></i>
                     </div>
-                    <div class="text-2xl font-black text-slate-900 dark:text-white" id="stat-flashcards-count">0</div>
-                    <span class="text-xs text-amber-400 font-medium">Sincronizados</span>
+                    <div class="text-2xl font-black text-slate-900 dark:text-white" id="stat-glossary-count">0</div>
+                    <span class="text-xs text-amber-400 font-medium">Termos cadastrados</span>
                 </div>
             </div>
 
@@ -328,7 +348,7 @@
 
             <!-- Quiz Visual Progress Bar -->
             <div class="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
-                <div id="quiz-progress-bar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full w-0 transition-all duration-300"></div>
+                <div id="quiz-progress-bar" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
             </div>
 
             <!-- Question Box -->
@@ -365,86 +385,6 @@
                     <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed" id="quiz-explanation-text"></p>
                     <div class="text-xs font-semibold text-blue-600 dark:text-blue-400" id="quiz-law-article"></div>
                 </div>
-            </div>
-        </section>
-
-        <!-- ==================== FLASHCARDS VIEW ==================== -->
-        <section id="view-flashcards" class="view-section hidden space-y-6">
-            <div class="text-center space-y-2 max-w-xl mx-auto">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sincronizado com o Banco de Questões
-                </span>
-                <h2 class="text-2xl font-black text-slate-900 dark:text-white">Flashcards de Revisão Ativa</h2>
-                <p class="text-slate-500 dark:text-slate-400 text-sm">Clique no cartão para virar. Suas questões cadastráveis geram cards automaticamente!</p>
-            </div>
-
-            <!-- Filter Tabs for Flashcards -->
-            <div class="flex flex-col items-center gap-3 max-w-xl mx-auto">
-                <div class="flex items-center justify-center gap-2 flex-wrap">
-                    <button onclick="filterFlashcardsMode('ALL')" id="fc-filter-all" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white transition">
-                        Todos os Cards
-                    </button>
-                    <button onclick="filterFlashcardsMode('BANK')" id="fc-filter-bank" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
-                        Gerados do Banco
-                    </button>
-                    <button onclick="filterFlashcardsMode('CONCEPT')" id="fc-filter-concept" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700">
-                        Conceituais Originais
-                    </button>
-                </div>
-                <select id="fc-discipline-filter" onchange="filterFlashcardsByDiscipline()" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="ALL">Todas as Disciplinas</option>
-                </select>
-            </div>
-
-            <!-- 3D Card Container -->
-            <div class="max-w-xl mx-auto perspective-1000 min-h-[340px]">
-                <div id="flashcard-inner" onclick="flipFlashcard()" class="relative w-full h-88 rounded-3xl cursor-pointer transition-transform duration-500 transform-style-3d shadow-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-8 flex flex-col justify-between">
-                    
-                    <!-- FRONT SIDE -->
-                    <div class="absolute inset-0 p-8 flex flex-col justify-between backface-hidden bg-white dark:bg-slate-800 rounded-3xl">
-                        <div class="flex items-center justify-between text-xs font-bold text-purple-500">
-                            <span id="fc-category">DIREITO PROCESSUAL PENAL</span>
-                            <span class="flex items-center gap-1"><i data-lucide="rotate-cw" class="w-3.5 h-3.5"></i> Clique p/ Virar</span>
-                        </div>
-                        <div class="my-auto text-center">
-                            <p class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 leading-relaxed whitespace-pre-line" id="fc-question">
-                                Carregando Flashcard...
-                            </p>
-                        </div>
-                        <div class="flex items-center justify-between text-xs text-slate-400">
-                            <span id="fc-source-tag" class="text-[10px] uppercase font-semibold text-slate-400">Fonte: Originais</span>
-                            <span>Frente (Enunciado)</span>
-                        </div>
-                    </div>
-
-                    <!-- BACK SIDE -->
-                    <div class="absolute inset-0 p-8 flex flex-col justify-between backface-hidden rotate-y-180 bg-slate-900 text-white rounded-3xl border border-purple-500/30">
-                        <div class="flex items-center justify-between text-xs font-bold text-purple-400">
-                            <span>GABARITO & FUNDAMENTAÇÃO</span>
-                            <span>Verso (Resposta)</span>
-                        </div>
-                        <div class="my-auto text-center space-y-3 overflow-y-auto max-h-52 pr-1">
-                            <p class="text-sm sm:text-base text-slate-200 leading-relaxed font-medium whitespace-pre-line text-left" id="fc-answer">
-                                Resposta e comentários...
-                            </p>
-                        </div>
-                        <div class="text-center text-xs text-slate-500">
-                            Foco na Fixação Rápida
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <div class="flex items-center justify-center gap-4 max-w-xl mx-auto">
-                <button onclick="prevFlashcard()" class="p-3.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-300 dark:hover:bg-slate-700 transition">
-                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                </button>
-                <span id="fc-counter" class="text-sm font-extrabold text-slate-500">1 / 1</span>
-                <button onclick="nextFlashcard()" class="p-3.5 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition flex items-center gap-2">
-                    Próximo <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                </button>
             </div>
         </section>
 
@@ -505,7 +445,7 @@
                     </div>
                 </div>
 
-                <button onclick="generateQuestionsWithAI()" id="btn-generate-ai" class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-extrabold transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 text-base">
+                <button onclick="generateQuestionsWithAI()" id="btn-generate-ai" class="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition shadow-sm flex items-center justify-center gap-2 text-base">
                     <i data-lucide="sparkles" class="w-5 h-5"></i> Gerar Questão Profissional e Salvar no Banco
                 </button>
             </div>
@@ -527,7 +467,7 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-900 dark:text-white">Banco de Questões Integrado</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm">Todas as questões salvas alimentam o módulo de Simulados, Flashcards e Glossário.</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm">Todas as questões salvas alimentam o módulo de Simulados e o Glossário.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button onclick="cleanDuplicateQuestions()" class="px-3.5 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-bold text-xs flex items-center gap-2 transition">
@@ -1296,7 +1236,6 @@
                 await saveQuestionsToStorage(cleaned);
                 renderBankList();
                 renderGlossary();
-                updateFlashcardUI();
                 updateStatsUI();
                 alertToast(`Foram removidas ${removedCount} questão(ões) duplicada(s)!`);
             } else {
@@ -1324,28 +1263,9 @@
             currentQuizIndex: 0,
             activeQuizList: [],
             selectedOptionIndex: null,
-            flashcardIndex: 0,
-            flashcardsFilter: 'ALL',
-            flashcardsDisciplineFilter: 'ALL',
             questionBank: [],
             manualFormat: 'cebraspe'
         };
-
-        // Concept Flashcards & Glossary Base
-        const baseFlashcardsData = [
-            {
-                category: 'DIREITO PROCESSUAL PENAL',
-                question: 'O Inquérito Policial pode ser arquivado pelo Delegado de Polícia se ele notar ausência de provas?',
-                answer: 'ERRADO / NÃO. Pelo Princípio da Indisponibilidade (Art. 17 do CPP), a autoridade policial nunca pode mandar arquivar autos de inquérito.',
-                source: 'Conceito Base'
-            },
-            {
-                category: 'DIREITO TRIBUTÁRIO',
-                question: 'Quais são os 3 tipos de Lançamento Tributário no CTN?',
-                answer: '1. Direto (ou de Ofício);\n2. Por Declaração (Misto);\n3. Por Homologação (Auto-lançamento).',
-                source: 'Conceito Base'
-            }
-        ];
 
         const baseGlossaryData = [
             {
@@ -1354,75 +1274,6 @@
                 content: 'É direito do defensor, no interesse do representado, ter acesso amplo aos elementos de prova que, já documentados em procedimento investigatório praticado por órgão com competência de polícia judiciária, digam respeito ao exercício do direito de defesa.'
             }
         ];
-
-        // Identifica o "conceito" por trás de uma questão (não a questão em si), para agrupar
-        // várias questões que testam a MESMA regra/artigo num único flashcard, em vez de repetir.
-        function getFlashcardConceptKey(q) {
-            const discipline = (q.discipline || 'GERAL').trim().toUpperCase();
-            const law = (q.lawArticles || '').trim();
-            if (law) return `${discipline}::${law.toUpperCase()}`;
-            // Sem base legal cadastrada: usa o início normalizado do enunciado como identificador do conceito.
-            const normalizedStart = normalizeForDedup(q.statement).split(' ').slice(0, 8).join(' ');
-            return `${discipline}::${normalizedStart}`;
-        }
-
-        // Monta a FRENTE do flashcard como uma pergunta de revisão do conceito/tema,
-        // em vez de simplesmente repetir o enunciado inteiro do caso concreto da questão.
-        function buildConceptQuestionFront(q) {
-            const discipline = q.discipline || 'GERAL';
-            if (q.lawArticles && q.lawArticles.trim()) {
-                return `Revisão de Conceito — ${discipline}\n\nO que você precisa lembrar sobre:\n"${q.lawArticles.trim()}"?`;
-            }
-            const firstSentence = (q.statement || '').split(/(?<=[.?!])\s/)[0] || q.statement || '';
-            const shortTopic = firstSentence.length > 140 ? firstSentence.slice(0, 140) + '...' : firstSentence;
-            return `Revisão de Conceito — ${discipline}\n\nQual o entendimento correto sobre:\n"${shortTopic}"?`;
-        }
-
-        function getCombinedFlashcards() {
-            const conceptMap = new Map();
-
-            appState.questionBank.forEach((q) => {
-                const key = getFlashcardConceptKey(q);
-                if (conceptMap.has(key)) {
-                    conceptMap.get(key).relatedCount += 1;
-                    return; // já existe flashcard para esse conceito — não duplica
-                }
-                conceptMap.set(key, {
-                    category: q.discipline || 'GERAL',
-                    question: buildConceptQuestionFront(q),
-                    answer: `📌 CONCEITO:\n${q.explanation}${q.lawArticles ? '\n\n⚖️ BASE LEGAL:\n' + q.lawArticles : ''}`,
-                    source: `Gerado do Banco (${q.source || 'Banco'})`,
-                    relatedCount: 1
-                });
-            });
-
-            let bankFlashcards = Array.from(conceptMap.values()).map(card => ({
-                ...card,
-                answer: card.relatedCount > 1
-                    ? `${card.answer}\n\n(Baseado em ${card.relatedCount} questões do seu banco sobre este mesmo conceito)`
-                    : card.answer
-            }));
-
-            // Agrupa por disciplina na sequência, para a revisão não pular de assunto em assunto.
-            bankFlashcards.sort((a, b) => a.category.localeCompare(b.category, 'pt-BR'));
-
-            let combinedList;
-            if (appState.flashcardsFilter === 'BANK') {
-                combinedList = bankFlashcards.length > 0 ? bankFlashcards : baseFlashcardsData;
-            } else if (appState.flashcardsFilter === 'CONCEPT') {
-                combinedList = baseFlashcardsData;
-            } else {
-                combinedList = [...bankFlashcards, ...baseFlashcardsData];
-            }
-
-            if (appState.flashcardsDisciplineFilter && appState.flashcardsDisciplineFilter !== 'ALL') {
-                combinedList = combinedList.filter(card =>
-                    (card.category || '').trim().toUpperCase() === appState.flashcardsDisciplineFilter.trim().toUpperCase()
-                );
-            }
-
-            return combinedList;
-        }
 
         function getCombinedGlossary() {
             const extractedItems = [];
@@ -1459,7 +1310,6 @@
             renderGlossary();
             renderBankList();
             renderManualOptionsForm();
-            updateFlashcardUI();
             updateStatsUI();
         });
 
@@ -1470,7 +1320,6 @@
             if (target) {
                 target.classList.remove('hidden');
             }
-            if (viewName === 'flashcards') updateFlashcardUI();
             if (viewName === 'glossary') renderGlossary();
             if (viewName === 'bank') renderBankList();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1599,85 +1448,6 @@
             renderCurrentQuizQuestion();
         }
 
-        // Flashcards Logic
-        function flipFlashcard() {
-            document.getElementById('flashcard-inner').classList.toggle('rotate-y-180');
-        }
-
-        function filterFlashcardsMode(mode) {
-            appState.flashcardsFilter = mode;
-            appState.flashcardIndex = 0;
-            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
-
-            const btnAll = document.getElementById('fc-filter-all');
-            const btnBank = document.getElementById('fc-filter-bank');
-            const btnConcept = document.getElementById('fc-filter-concept');
-            const activeClass = 'px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white transition';
-            const inactiveClass = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition hover:bg-slate-300 dark:hover:bg-slate-700';
-
-            btnAll.className = mode === 'ALL' ? activeClass : inactiveClass;
-            btnBank.className = mode === 'BANK' ? activeClass : inactiveClass;
-            btnConcept.className = mode === 'CONCEPT' ? activeClass : inactiveClass;
-
-            updateFlashcardUI();
-        }
-
-        function nextFlashcard() {
-            const list = getCombinedFlashcards();
-            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
-            setTimeout(() => {
-                appState.flashcardIndex = (appState.flashcardIndex + 1) % list.length;
-                updateFlashcardUI();
-            }, 200);
-        }
-
-        function prevFlashcard() {
-            const list = getCombinedFlashcards();
-            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
-            setTimeout(() => {
-                appState.flashcardIndex = (appState.flashcardIndex - 1 + list.length) % list.length;
-                updateFlashcardUI();
-            }, 200);
-        }
-
-        function populateFlashcardDisciplineFilter() {
-            const select = document.getElementById('fc-discipline-filter');
-            if (!select) return;
-            const current = appState.flashcardsDisciplineFilter || 'ALL';
-            const disciplines = getUniqueDisciplines();
-            select.innerHTML = '<option value="ALL">Todas as Disciplinas</option>' +
-                disciplines.map(d => `<option value="${d.discipline}">${d.discipline} (${d.count})</option>`).join('');
-            select.value = disciplines.some(d => d.discipline === current) ? current : 'ALL';
-            appState.flashcardsDisciplineFilter = select.value;
-        }
-
-        function filterFlashcardsByDiscipline() {
-            const select = document.getElementById('fc-discipline-filter');
-            appState.flashcardsDisciplineFilter = select ? select.value : 'ALL';
-            appState.flashcardIndex = 0;
-            document.getElementById('flashcard-inner').classList.remove('rotate-y-180');
-            updateFlashcardUI();
-        }
-
-        function updateFlashcardUI() {
-            populateFlashcardDisciplineFilter();
-            const list = getCombinedFlashcards();
-            if (appState.flashcardIndex >= list.length) appState.flashcardIndex = 0;
-
-            const card = list[appState.flashcardIndex] || {
-                category: 'GERAL',
-                question: 'Nenhum flashcard disponível.',
-                answer: 'Adicione mais questões no seu banco.',
-                source: 'Sistema'
-            };
-
-            document.getElementById('fc-category').innerText = card.category;
-            document.getElementById('fc-question').innerText = card.question;
-            document.getElementById('fc-answer').innerText = card.answer;
-            document.getElementById('fc-source-tag').innerText = `Fonte: ${card.source}`;
-            document.getElementById('fc-counter').innerText = `${list.length > 0 ? appState.flashcardIndex + 1 : 0} / ${list.length}`;
-        }
-
         // Glossary Logic
         function renderGlossary(filter = '') {
             const container = document.getElementById('glossary-list');
@@ -1800,7 +1570,6 @@
 
             renderBankList();
             renderGlossary();
-            updateFlashcardUI();
             updateStatsUI();
             closeBulkJsonModal();
 
@@ -1929,7 +1698,6 @@
 
             renderBankList();
             renderGlossary();
-            updateFlashcardUI();
             updateStatsUI();
             closeManualQuestionModal();
 
@@ -1989,7 +1757,6 @@
             await deleteQuestionFromStorage(id);
             renderBankList();
             renderGlossary();
-            updateFlashcardUI();
             updateStatsUI();
             alertToast('Questão removida do banco com sucesso.');
         }
@@ -2003,12 +1770,9 @@
             const accuracy = appState.solvedCount > 0 ? Math.round((appState.correctCount / appState.solvedCount) * 100) : 0;
             document.getElementById('stat-accuracy').innerText = `${accuracy}%`;
             
-            const flashcardsCount = getCombinedFlashcards().length;
-            document.getElementById('stat-flashcards-count').innerText = flashcardsCount;
-            document.getElementById('nav-fc-badge').innerText = flashcardsCount;
-
             const glossaryCount = getCombinedGlossary().length;
             document.getElementById('nav-glossary-badge').innerText = glossaryCount;
+            document.getElementById('stat-glossary-count').innerText = glossaryCount;
 
             renderDisciplineCards();
         }
@@ -2153,7 +1917,7 @@
                     <div class="p-6 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-500/30 text-center space-y-3">
                         <i data-lucide="check-circle" class="w-12 h-12 text-emerald-500 mx-auto"></i>
                         <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100">${generatedList.length} Questão(ões) Gerada(s) e Salva(s)!</h3>
-                        <p class="text-sm text-slate-600 dark:text-slate-300">As questões já estão no seu Banco de Questões e alimentaram automaticamente os Flashcards e o Glossário!</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">As questões já estão no seu Banco de Questões e alimentaram automaticamente o Glossário!</p>
                         <div class="flex justify-center gap-3 pt-2">
                             <button onclick="navigateTo('bank')" class="px-4 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm hover:bg-emerald-700 transition">Ver no Banco</button>
                             <button onclick="startQuickQuiz('ALL')" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-bold text-sm hover:bg-blue-700 transition">Fazer Simulado</button>
@@ -2164,7 +1928,6 @@
 
                 renderBankList();
                 renderGlossary();
-                updateFlashcardUI();
                 updateStatsUI();
                 alertToast('Questões geradas e salvas no navegador com sucesso!');
 
